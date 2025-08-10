@@ -1,0 +1,38 @@
+[
+  {
+    "id": 7,
+    "title": "Suburban Family House",
+    "address": "456 Elm Street",
+    "price": 450000,
+    "priceType": "sale",
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "size": 280,
+    "type": "FOR SALE",
+    "featured": false,
+    "best": false,
+    "status": "pending",
+    "images": [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-23%20at%204.29.39%E2%80%AFPM-3KuxxGbLkHNh20iWslRuykxGUpWO7m.png"
+    ],
+    "slug": "suburban-family-house",
+    "description": "Beautiful family home in quiet suburban neighborhood with great schools nearby.",
+    "yearBuilt": 2015,
+    "propertyId": null,
+    "neighborhood": "Suburbia",
+    "features": ["Air Conditioning", "Heating", "Garden", "Garage"],
+    "location": {
+      "lat": 40.6892,
+      "lng": -74.0445,
+      "address": "456 Elm Street, Jersey City, NJ 07302"
+    },
+    "agent": null,
+    "createdAt": "2024-01-25T16:30:00Z",
+    "updatedAt": "2024-01-25T16:30:00Z",
+    "submittedBy": {
+      "name": "Robert Johnson",
+      "email": "robert.johnson@email.com",
+      "phone": "+1-555-0123"
+    }
+  }
+]

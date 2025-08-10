@@ -1,0 +1,188 @@
+[
+  {
+    "id": 1,
+    "title": "Luxury Family Home",
+    "address": "1800-1818 79th St",
+    "price": 3950000,
+    "priceType": "sale",
+    "bedrooms": 4,
+    "bathrooms": 1,
+    "size": 400,
+    "type": "FOR SALE",
+    "featured": true,
+    "best": false,
+    "status": "active",
+    "images": [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-23%20at%204.29.39%E2%80%AFPM-3KuxxGbLkHNh20iWslRuykxGUpWO7m.png"
+    ],
+    "slug": "luxury-family-home",
+    "description": "This stunning luxury family home offers spacious living in a prime location. Featuring 4 bedrooms, 1 bathroom, and approximately 400 square feet of living space.",
+    "yearBuilt": 2021,
+    "propertyId": "PR-0001",
+    "neighborhood": "Downtown",
+    "features": ["Air Conditioning", "Heating", "Swimming Pool", "Garden", "Garage", "Security System"],
+    "location": {
+      "lat": 40.7128,
+      "lng": -74.006,
+      "address": "1800-1818 79th St, New York, NY 10001"
+    },
+    "agent": "John Smith",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-20T14:45:00Z"
+  },
+  {
+    "id": 2,
+    "title": "Skyper Pool Apartment",
+    "address": "1020 Bloomingdale Ave",
+    "price": 2800000,
+    "priceType": "sale",
+    "bedrooms": 4,
+    "bathrooms": 2,
+    "size": 450,
+    "type": "FOR SALE",
+    "featured": false,
+    "best": true,
+    "status": "active",
+    "images": [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-23%20at%204.29.39%E2%80%AFPM-3KuxxGbLkHNh20iWslRuykxGUpWO7m.png"
+    ],
+    "slug": "skyper-pool-apartment",
+    "description": "Modern apartment with pool access and stunning city views. Perfect for urban living with all amenities nearby.",
+    "yearBuilt": 2020,
+    "propertyId": "PR-0002",
+    "neighborhood": "Midtown",
+    "features": ["Air Conditioning", "Swimming Pool", "Balcony", "Modern Kitchen", "High-Speed Internet"],
+    "location": {
+      "lat": 40.7589,
+      "lng": -73.9851,
+      "address": "1020 Bloomingdale Ave, New York, NY 10025"
+    },
+    "agent": "Sarah Johnson",
+    "createdAt": "2024-01-10T09:15:00Z",
+    "updatedAt": "2024-01-18T16:20:00Z"
+  },
+  {
+    "id": 3,
+    "title": "Beachfront Villa",
+    "address": "123 Ocean Drive",
+    "price": 5200000,
+    "priceType": "sale",
+    "bedrooms": 5,
+    "bathrooms": 4,
+    "size": 550,
+    "type": "FOR SALE",
+    "featured": false,
+    "best": true,
+    "status": "active",
+    "images": [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-23%20at%204.29.39%E2%80%AFPM-3KuxxGbLkHNh20iWslRuykxGUpWO7m.png"
+    ],
+    "slug": "beachfront-villa",
+    "description": "Stunning beachfront villa with panoramic ocean views. Luxury living at its finest with private beach access.",
+    "yearBuilt": 2023,
+    "propertyId": "PR-0003",
+    "neighborhood": "Beachfront",
+    "features": ["Swimming Pool", "Garden", "Garage", "Security System", "Ocean View", "Private Beach"],
+    "location": {
+      "lat": 25.7617,
+      "lng": -80.1918,
+      "address": "123 Ocean Drive, Miami Beach, FL 33139"
+    },
+    "agent": "Mike Wilson",
+    "createdAt": "2024-01-05T11:00:00Z",
+    "updatedAt": "2024-01-22T13:30:00Z"
+  },
+  {
+    "id": 4,
+    "title": "Modern Downtown Condo",
+    "address": "555 Main Street",
+    "price": 1850000,
+    "priceType": "sale",
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "size": 320,
+    "type": "FOR SALE",
+    "featured": true,
+    "best": true,
+    "status": "active",
+    "images": [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-23%20at%204.29.39%E2%80%AFPM-3KuxxGbLkHNh20iWslRuykxGUpWO7m.png"
+    ],
+    "slug": "modern-downtown-condo",
+    "description": "Sleek modern condo in the heart of downtown. Walking distance to restaurants, shopping, and entertainment.",
+    "yearBuilt": 2022,
+    "propertyId": "PR-0004",
+    "neighborhood": "Downtown Core",
+    "features": ["Air Conditioning", "Modern Kitchen", "Balcony", "High-Speed Internet", "Security System"],
+    "location": {
+      "lat": 40.7505,
+      "lng": -73.9934,
+      "address": "555 Main Street, New York, NY 10001"
+    },
+    "agent": "Emily Davis",
+    "createdAt": "2024-01-12T08:45:00Z",
+    "updatedAt": "2024-01-25T10:15:00Z"
+  },
+  {
+    "id": 5,
+    "title": "North Dillard Street",
+    "address": "4330 Bell Shoals Rd",
+    "price": 7500,
+    "priceType": "rent",
+    "bedrooms": 4,
+    "bathrooms": 2,
+    "size": 400,
+    "type": "FOR RENT",
+    "featured": true,
+    "best": false,
+    "status": "active",
+    "images": [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-23%20at%204.29.39%E2%80%AFPM-3KuxxGbLkHNh20iWslRuykxGUpWO7m.png"
+    ],
+    "slug": "north-dillard-street",
+    "description": "Spacious rental property in a quiet neighborhood. Perfect for families looking for comfort and convenience.",
+    "yearBuilt": 2019,
+    "propertyId": "PR-0005",
+    "neighborhood": "North District",
+    "features": ["Air Conditioning", "Heating", "Garden", "Garage", "Pet Friendly"],
+    "location": {
+      "lat": 27.9506,
+      "lng": -82.4572,
+      "address": "4330 Bell Shoals Rd, Valrico, FL 33596"
+    },
+    "agent": "John Smith",
+    "createdAt": "2024-01-08T12:20:00Z",
+    "updatedAt": "2024-01-19T15:40:00Z"
+  },
+  {
+    "id": 6,
+    "title": "Cozy Studio Apartment",
+    "address": "789 Park Avenue",
+    "price": 3200,
+    "priceType": "rent",
+    "bedrooms": 1,
+    "bathrooms": 1,
+    "size": 180,
+    "type": "FOR RENT",
+    "featured": false,
+    "best": false,
+    "status": "active",
+    "images": [
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-05-23%20at%204.29.39%E2%80%AFPM-3KuxxGbLkHNh20iWslRuykxGUpWO7m.png"
+    ],
+    "slug": "cozy-studio-apartment",
+    "description": "Charming studio apartment perfect for young professionals. Compact yet comfortable living space.",
+    "yearBuilt": 2018,
+    "propertyId": null,
+    "neighborhood": "Park District",
+    "features": ["Air Conditioning", "Modern Kitchen", "High-Speed Internet", "Furnished"],
+    "location": {
+      "lat": 40.7831,
+      "lng": -73.9712,
+      "address": "789 Park Avenue, New York, NY 10075"
+    },
+    "agent": "Sarah Johnson",
+    "createdAt": "2024-01-20T14:10:00Z",
+    "updatedAt": "2024-01-20T14:10:00Z"
+  }
+]
