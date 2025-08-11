@@ -254,7 +254,7 @@ export default function AgentsPage() {
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={agent.avatar || "/placeholder.svg"} alt={agent.name} />
+                          <AvatarImage src={agent.avatar || "/placeholder-user.jpg"} alt={agent.name} />
                           <AvatarFallback>
                             {agent.name
                               .split(" ")

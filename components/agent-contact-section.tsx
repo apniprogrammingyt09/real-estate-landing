@@ -96,7 +96,7 @@ export default function AgentContactSection({
           <div className="flex items-center space-x-3">
             <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100">
               {agent.avatar ? (
-                <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
+                <Image src={agent.avatar || "/placeholder-user.jpg"} alt={agent.name} fill className="object-cover" />
               ) : (
                 <div className="flex items-center justify-center h-full w-full bg-gray-100">
                   <Home className="h-6 w-6 text-gray-400" />

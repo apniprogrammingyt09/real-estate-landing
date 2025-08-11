@@ -152,14 +152,20 @@ export default function AgentsPage() {
                 <div key={agent.id} className="card-base card-hover overflow-hidden">
                   <div className="relative h-64">
                     <Image
-                      src={agent.avatar || "/placeholder.svg?height=300&width=300"}
+                      src={agent.avatar || "/placeholder-user.jpg"}
                       alt={agent.name}
                       fill
                       className="object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder-user.jpg";
+                      }}
                     />
                     <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-full px-3 py-1 flex items-center space-x-1">
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{agent.rating}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {agent.rating > 0 ? agent.rating.toFixed(1) : "New"}
+                      </span>
                     </div>
                   </div>
 
