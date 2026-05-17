@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       time,
       message,
       status: "pending",
-      agentId: property.agentId, // Link booking to property's agent
+      agentId: property.agentId || undefined, // Link booking to property's agent
     })
 
     console.log("Booking created successfully:", booking.id)

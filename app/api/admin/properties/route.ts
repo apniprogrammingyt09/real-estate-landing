@@ -21,9 +21,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { action, propertyId, agentId, featured, best } = body
+    const { action, propertyId, agentId, featured, best, reason } = body
 
-    console.log("Admin action received:", { action, propertyId, agentId, featured, best })
+    console.log("Admin action received:", { action, propertyId, agentId, featured, best, reason })
 
     switch (action) {
       case "approve":
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Property ID is required" }, { status: 400 })
         }
 
-        const rejected = await db.rejectProperty(propertyId)
+        const rejected = await db.rejectProperty(propertyId, reason)
         if (!rejected) {
           return NextResponse.json({ error: "Property not found or already processed" }, { status: 404 })
         }

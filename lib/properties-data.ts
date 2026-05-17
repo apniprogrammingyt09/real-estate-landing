@@ -149,13 +149,13 @@ export async function approveProperty(propertyId: number): Promise<void> {
   }
 }
 
-export async function rejectProperty(propertyId: number): Promise<void> {
+export async function rejectProperty(propertyId: number, reason?: string): Promise<void> {
   const response = await fetch("/api/admin/properties", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ action: "reject", propertyId }),
+    body: JSON.stringify({ action: "reject", propertyId, reason }),
   })
 
   if (!response.ok) {

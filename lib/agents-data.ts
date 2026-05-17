@@ -1,4 +1,5 @@
 import type { Agent } from "./db"
+export type { Agent }
 
 // Client-side data fetching functions for agents
 export async function getAgents(): Promise<Agent[]> {

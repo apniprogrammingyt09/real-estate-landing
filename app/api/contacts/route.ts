@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
     }
 
     // If propertyId is provided, get property details and agent info
-    let propertyTitle = null
-    let assignedAgentId = agentId
+    let propertyTitle: string | undefined = undefined
+    let assignedAgentId = agentId || undefined
 
     if (propertyId) {
       const property = await db.getProperty(Number.parseInt(propertyId))

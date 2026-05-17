@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 export async function GET() {
   try {
     // Force re-initialization of the database
-    await db.initializeDatabase(true)
+    await db.initializeDatabase()
 
     return NextResponse.json({
       success: true,

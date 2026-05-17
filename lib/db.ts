@@ -708,7 +708,7 @@ class MongoDatabase {
     }
   }
 
-  async rejectProperty(id: number): Promise<boolean> {
+  async rejectProperty(id: number, reason?: string): Promise<boolean> {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
@@ -721,7 +721,7 @@ class MongoDatabase {
       if (updated) {
         await this.addActivity({
           type: "property_rejected",
-          message: `Property '${updated.title}' was rejected`,
+          message: `Property '${updated.title}' was rejected${reason ? `: ${reason}` : ""}`,
           propertyId: id,
         })
       }
