@@ -102,7 +102,7 @@ export default function AgentMessages() {
       case "unread":
         return "bg-red-100 text-red-800"
       case "read":
-        return "bg-blue-100 text-blue-800"
+        return "bg-emerald-100 text-emerald-800"
       case "replied":
         return "bg-green-100 text-green-800"
       default:
@@ -151,7 +151,7 @@ export default function AgentMessages() {
                 <span className="text-lg font-bold">{filteredMessages.length}</span>
                 <span className="text-sm">Total Messages</span>
               </div>
-              <div className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center space-x-2">
+              <div className="bg-emerald-500 text-white px-4 py-2 rounded-full flex items-center space-x-2">
                 <span className="text-lg font-bold">
                   {filteredMessages.filter((m) => m.status === "unread").length}
                 </span>
@@ -229,7 +229,7 @@ export default function AgentMessages() {
                   </TableHeader>
                   <TableBody>
                     {filteredMessages.map((message) => (
-                      <TableRow key={message.id} className={message.status === "unread" ? "bg-blue-50" : ""}>
+                      <TableRow key={message.id} className={message.status === "unread" ? "bg-emerald-50" : ""}>
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <Avatar className="h-8 w-8">

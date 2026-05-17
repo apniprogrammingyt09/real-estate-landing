@@ -3,144 +3,82 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Home, Search, ArrowLeft, Zap } from "lucide-react"
+import { ArrowLeft, Sparkles, Compass } from "lucide-react"
 
 export default function NotFound() {
   const [mounted, setMounted] = useState(false)
-  const [glitchActive, setGlitchActive] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-
-    // Trigger glitch effect periodically
-    const glitchInterval = setInterval(() => {
-      setGlitchActive(true)
-      setTimeout(() => setGlitchActive(false), 200)
-    }, 3000)
-
-    return () => clearInterval(glitchInterval)
   }, [])
 
   if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen bg-background font-sans flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Editorial Luxury Background Gradients */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-48 -right-48 w-[600px] h-[600px] bg-emerald-200/20 dark:bg-emerald-500/5 rounded-full blur-[140px] animate-pulse"></div>
+        <div className="absolute -bottom-48 -left-48 w-[600px] h-[600px] bg-amber-200/20 dark:bg-amber-500/5 rounded-full blur-[140px] animate-pulse"></div>
+        
+        {/* Fine Architectural Grid Overlay */}
+        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04] bg-[linear-gradient(to_right,#bc9d6a_1px,transparent_1px),linear-gradient(to_bottom,#bc9d6a_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
       </div>
 
-      <div className="relative z-10 text-center max-w-2xl mx-auto">
-        {/* Animated 404 */}
-        <div className="relative mb-8">
-          <h1
-            className={`text-8xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 select-none transition-all duration-200 ${
-              glitchActive ? "transform skew-x-2 skew-y-1" : ""
-            }`}
-          >
+      <div className="relative z-10 text-center max-w-2xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        
+        {/* Luxury Badge Accent */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/50 dark:border-emerald-900/50 text-[#0E4B3E] dark:text-[#bc9d6a] text-[10px] font-bold uppercase tracking-[0.2em] shadow-sm">
+          <Compass className="w-4 h-4 animate-spin duration-[10s]" />
+          Lost in Splendor
+        </div>
+
+        {/* Majestic Serif 404 Header */}
+        <div className="relative">
+          <h1 className="text-[12rem] md:text-[16rem] font-serif font-bold text-gray-900 dark:text-white leading-[0.8] tracking-tighter select-none relative z-10">
             404
           </h1>
-
-          {/* Glitch overlay */}
-          {glitchActive && (
-            <>
-              <h1 className="absolute top-0 left-0 text-8xl md:text-9xl font-black text-red-500 opacity-70 transform translate-x-1 -translate-y-1 select-none">
-                404
-              </h1>
-              <h1 className="absolute top-0 left-0 text-8xl md:text-9xl font-black text-cyan-500 opacity-70 transform -translate-x-1 translate-y-1 select-none">
-                404
-              </h1>
-            </>
-          )}
-        </div>
-
-        {/* Floating Icons */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 animate-float">
-            <Home className="w-8 h-8 text-blue-400 opacity-60" />
-          </div>
-          <div className="absolute top-1/3 right-1/4 animate-float animation-delay-1000">
-            <Search className="w-6 h-6 text-purple-400 opacity-60" />
-          </div>
-          <div className="absolute bottom-1/3 left-1/3 animate-float animation-delay-2000">
-            <Zap className="w-7 h-7 text-yellow-400 opacity-60" />
+          <div className="absolute inset-0 flex items-center justify-center -z-10">
+            <div className="w-[12rem] h-[12rem] md:w-[16rem] md:h-[16rem] bg-emerald-100 dark:bg-emerald-950/20 rounded-full blur-2xl opacity-60"></div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="space-y-6 animate-fade-in-up">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">Oops! Page Not Found</h2>
-
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed">
-            The page you're looking for seems to have vanished into the digital void. Don't worry, even the best
-            explorers sometimes take a wrong turn!
+        {/* Content Section */}
+        <div className="space-y-6 max-w-lg mx-auto">
+          <h2 className="text-3xl md:text-5xl font-serif text-gray-900 dark:text-white tracking-tight leading-tight">
+            An Uncharted Path.
+          </h2>
+          
+          <p className="text-base md:text-lg text-gray-500 dark:text-gray-400 font-sans leading-relaxed">
+            The destination you requested has departed to a finer location. Allow us to guide you back to our elite collection of luxury estates and urban retreats.
           </p>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-            <Button asChild size="lg" className="group">
-              <Link href="/" className="flex items-center space-x-2">
-                <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>Back to Home</span>
-              </Link>
-            </Button>
-
-            <Button asChild variant="outline" size="lg" className="group">
-              <Link href="/listings" className="flex items-center space-x-2">
-                <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>Browse Properties</span>
-              </Link>
-            </Button>
-          </div>
-
-          {/* Go Back Button */}
-          <Button
-            variant="ghost"
-            onClick={() => window.history.back()}
-            className="group text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Go Back
-          </Button>
         </div>
 
-        {/* Animated Dots */}
-        <div className="flex justify-center space-x-2 mt-12">
-          <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-          <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce animation-delay-200"></div>
-          <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce animation-delay-400"></div>
+        {/* Elegant Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+          <Link href="/">
+            <Button size="lg" className="h-16 px-10 rounded-full bg-[#0E4B3E] hover:bg-[#0a362c] text-white font-bold text-xs tracking-widest uppercase transition-all duration-300 shadow-xl shadow-emerald-900/10 dark:shadow-none hover:scale-105">
+              Back to Sanctuary
+            </Button>
+          </Link>
+
+          <Link href="/listings">
+            <button className="h-16 px-10 rounded-full border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white font-bold text-xs tracking-widest uppercase hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900 transition-all duration-300 bg-transparent flex items-center justify-center font-sans">
+              Browse Estates
+            </button>
+          </Link>
         </div>
+
+        {/* Dynamic Navigation Help */}
+        <button
+          onClick={() => window.history.back()}
+          className="group inline-flex items-center gap-2 text-xs font-bold text-gray-400 dark:text-gray-500 hover:text-[#0E4B3E] dark:hover:text-[#bc9d6a] uppercase tracking-widest transition-colors duration-300"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Return to Previous
+        </button>
+
       </div>
-
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        
-        @keyframes fade-in-up {
-          0% { opacity: 0; transform: translateY(30px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-blob { animation: blob 7s infinite; }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        .animate-fade-in-up { animation: fade-in-up 0.8s ease-out; }
-        .animation-delay-200 { animation-delay: 0.2s; }
-        .animation-delay-400 { animation-delay: 0.4s; }
-        .animation-delay-1000 { animation-delay: 1s; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-      `}</style>
     </div>
   )
 }

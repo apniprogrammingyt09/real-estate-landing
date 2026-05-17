@@ -56,8 +56,8 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-            <Shield className="h-6 w-6 text-blue-600" />
+          <div className="mx-auto h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
+            <Shield className="h-6 w-6 text-emerald-600" />
           </div>
           <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
           <CardDescription>Sign in to your admin account to manage the platform</CardDescription>

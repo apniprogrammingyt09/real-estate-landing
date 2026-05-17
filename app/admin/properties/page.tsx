@@ -333,8 +333,8 @@ function PropertiesContent() {
                 </Select>
               </div>
               {actionLoading[property.id] === "assign" && (
-                <div className="flex items-center text-sm text-blue-600">
-                  <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></div>
+                <div className="flex items-center text-sm text-emerald-600">
+                  <div className="animate-spin h-4 w-4 border-2 border-emerald-600 border-t-transparent rounded-full mr-2"></div>
                   Assigning agent...
                 </div>
               )}
@@ -432,8 +432,8 @@ function PropertiesContent() {
                 </Button>
               </div>
               {actionLoading[property.id] && (
-                <div className="flex items-center text-sm text-blue-600">
-                  <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></div>
+                <div className="flex items-center text-sm text-emerald-600">
+                  <div className="animate-spin h-4 w-4 border-2 border-emerald-600 border-t-transparent rounded-full mr-2"></div>
                   {actionLoading[property.id] === "approve" ? "Approving..." : "Rejecting..."}
                 </div>
               )}

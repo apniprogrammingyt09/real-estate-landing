@@ -68,13 +68,16 @@ export default function AgentProperties() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [propertyTypes, setPropertyTypes] = useState<string[]>(["House", "Apartment", "Condo", "Villa", "Townhouse", "Studio", "Duplex", "Commercial"])
+
+  const agentId = agent?.id
 
   useEffect(() => {
     const fetchProperties = async () => {
-      if (!agent?.id) return
+      if (!agentId) return
 
       try {
-        const response = await fetch(`/api/agents/${agent.id}/properties`)
+        const response = await fetch(`/api/agents/${agentId}/properties`)
         if (response.ok) {
           const data = await response.json()
           setProperties(data.properties || [])
@@ -87,8 +90,23 @@ export default function AgentProperties() {
       }
     }
 
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/settings")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.propertyTypes) {
+            setPropertyTypes(data.propertyTypes)
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error)
+      }
+    }
+
     fetchProperties()
-  }, [agent?.id])
+    fetchSettings()
+  }, [agentId])
 
   const filteredProperties = properties.filter((property) => {
     const matchesSearch =
@@ -155,7 +173,7 @@ export default function AgentProperties() {
                   <p className="text-sm font-medium text-gray-600">Total Properties</p>
                   <p className="text-xl lg:text-2xl font-bold text-gray-900">{properties.length}</p>
                 </div>
-                <Building className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
+                <Building className="h-6 w-6 lg:h-8 lg:w-8 text-emerald-600" />
               </div>
             </CardContent>
           </Card>
@@ -232,10 +250,9 @@ export default function AgentProperties() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="house">House</SelectItem>
-                  <SelectItem value="apartment">Apartment</SelectItem>
-                  <SelectItem value="condo">Condo</SelectItem>
-                  <SelectItem value="townhouse">Townhouse</SelectItem>
+                  {propertyTypes.map((type) => (
+                    <SelectItem key={type} value={type.toLowerCase()}>{type}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

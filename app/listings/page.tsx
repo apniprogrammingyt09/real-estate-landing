@@ -1,24 +1,27 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
+import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, ChevronLeft, ChevronRight, LayoutGrid, List } from "lucide-react"
+import { Search, MapPin, Grid, List, ChevronLeft, ChevronRight, SlidersHorizontal, ArrowUpRight, Loader2, Sparkles } from "lucide-react"
+import PropertyCard from "@/components/property-card"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import PropertyCard from "@/components/property-card"
-import ListingsLoading from "./loading"
 import { getProperties, type Property } from "@/lib/properties-data"
+import { cn } from "@/lib/utils"
+import ListingsLoading from "./loading"
 
 function ListingsContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [properties, setProperties] = useState<Property[]>([])
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [viewType, setViewType] = useState("grid")
+  const [viewType, setViewType] = useState<"grid" | "list">("grid")
   const [filters, setFilters] = useState({
     type: "all",
     location: "all",
@@ -28,10 +31,14 @@ function ListingsContent() {
     minSize: "",
     maxSize: "",
     bathrooms: "any",
+    priceType: "all",
+    featured: "all",
+    best: "all",
     features: [],
   })
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("newest")
+  const [settings, setSettings] = useState<any>(null)
 
   // Add these state variables after other state declarations
   const [currentPage, setCurrentPage] = useState(1)
@@ -55,43 +62,71 @@ function ListingsContent() {
       }
     }
 
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/settings")
+        const data = await response.json()
+        setSettings(data)
+      } catch (error) {
+        console.error("Error fetching settings:", error)
+      }
+    }
+
     fetchProperties()
+    fetchSettings()
   }, [])
 
-  // Initialize from URL parameters
+  // Initialize from URL parameters (handles initial load and back/forward navigation)
   useEffect(() => {
-    const urlSearch = searchParams.get("search")
-    const urlType = searchParams.get("type")
-    const urlMinPrice = searchParams.get("minPrice")
-    const urlMaxPrice = searchParams.get("maxPrice")
+    const urlSearch = searchParams.get("search") || ""
+    const urlType = searchParams.get("type") || "all"
+    const urlMinPrice = searchParams.get("minPrice") || ""
+    const urlMaxPrice = searchParams.get("maxPrice") || ""
+    const urlPriceType = searchParams.get("priceType") || "all"
+    const urlFeatured = searchParams.get("featured") || "all"
+    const urlSort = searchParams.get("sort") || "newest"
 
-    if (urlSearch) {
+    if (urlSearch !== searchTerm) {
       setSearchTerm(urlSearch)
     }
 
-    if (urlType) {
-      setFilters((prev) => ({
+    if (urlSort !== sortBy) {
+      setSortBy(urlSort)
+    }
+
+    setFilters((prev) => {
+      let finalPriceType = urlPriceType
+      if (urlFeatured === "true" && urlPriceType === "all") {
+        finalPriceType = "featured"
+      }
+      const best = finalPriceType === "premium" ? "true" : "all"
+      const featured = (urlFeatured === "true" || finalPriceType === "featured") ? "true" : "all"
+      
+      if (
+        prev.type === urlType &&
+        prev.minPrice === urlMinPrice &&
+        prev.maxPrice === urlMaxPrice &&
+        prev.priceType === finalPriceType &&
+        prev.featured === featured &&
+        prev.best === best
+      ) {
+        return prev
+      }
+      
+      return {
         ...prev,
         type: urlType,
-      }))
-    }
-
-    if (urlMinPrice) {
-      setFilters((prev) => ({
-        ...prev,
         minPrice: urlMinPrice,
-      }))
-    }
-
-    if (urlMaxPrice) {
-      setFilters((prev) => ({
-        ...prev,
         maxPrice: urlMaxPrice,
-      }))
-    }
+        priceType: finalPriceType,
+        featured: featured,
+        best: best
+      }
+    })
   }, [searchParams])
 
   useEffect(() => {
+    // 1. Filter properties
     let filtered = [...properties]
 
     // Filter by search term
@@ -107,6 +142,27 @@ function ListingsContent() {
     // Filter by type
     if (filters.type !== "all") {
       filtered = filtered.filter((property) => property.type.toLowerCase() === filters.type.toLowerCase())
+    }
+
+    // Filter by priceType (Category select dropdown: sale, rent, premium, featured)
+    if (filters.priceType && filters.priceType !== "all") {
+      if (filters.priceType === "premium") {
+        filtered = filtered.filter((property) => property.best === true)
+      } else if (filters.priceType === "featured") {
+        filtered = filtered.filter((property) => property.featured === true)
+      } else {
+        filtered = filtered.filter((property) => property.priceType.toLowerCase() === filters.priceType.toLowerCase())
+      }
+    }
+
+    // Filter by featured explicitly if set from URL parameter and not already covered by priceType
+    if (filters.featured === "true" && filters.priceType !== "featured") {
+      filtered = filtered.filter((property) => property.featured === true)
+    }
+
+    // Filter by best explicitly if set and not already covered by priceType
+    if (filters.best === "true" && filters.priceType !== "premium") {
+      filtered = filtered.filter((property) => property.best === true)
     }
 
     // Filter by bedrooms
@@ -160,12 +216,64 @@ function ListingsContent() {
     setFilteredProperties(filtered)
   }, [filters, searchTerm, sortBy, properties])
 
+  const updateURL = (newFilters: typeof filters, newSearch: string, newSort: string) => {
+    const params = new URLSearchParams()
+    if (newSearch) params.set("search", newSearch)
+    if (newFilters.type !== "all") params.set("type", newFilters.type)
+    if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice)
+    if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice)
+    if (newFilters.priceType !== "all") params.set("priceType", newFilters.priceType)
+    if (newFilters.featured === "true" && newFilters.priceType !== "featured") {
+      params.set("featured", "true")
+    }
+    if (newSort !== "newest") params.set("sort", newSort)
+
+    const queryString = params.toString()
+    const currentQuery = searchParams.toString()
+    
+    if (queryString !== currentQuery) {
+      router.replace(`/listings${queryString ? `?${queryString}` : ""}`, { scroll: false })
+    }
+  }
+
   const handleFilterChange = (key: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
+    let newFilters = { ...filters, [key]: value }
+    
+    // Special handling for the Category dropdown (priceType)
+    if (key === "priceType") {
+      if (value === "featured") {
+        newFilters = { ...newFilters, priceType: "featured", featured: "true", best: "all" }
+      } else if (value === "premium") {
+        newFilters = { ...newFilters, priceType: "premium", best: "true", featured: "all" }
+      } else {
+        newFilters = { ...newFilters, priceType: value, featured: "all", best: "all" }
+      }
+    }
+    
+    setFilters(newFilters)
+    updateURL(newFilters, searchTerm, sortBy)
+  }
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value)
+    updateURL(filters, searchTerm, value)
+  }
+
+  // Debounced URL update for search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateURL(filters, searchTerm, sortBy)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    // URL update is handled by the debounced effect above
   }
 
   const handleSearch = () => {
-    // Search is handled by useEffect
+    updateURL(filters, searchTerm, sortBy)
   }
 
   if (loading) {
@@ -174,12 +282,12 @@ function ListingsContent() {
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+      <div className="flex flex-col min-h-screen bg-background">
         <Header />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()} variant="outline">
+          <div className="text-center space-y-6">
+            <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full px-10 py-6 h-auto border-2">
               Try Again
             </Button>
           </div>
@@ -198,195 +306,148 @@ function ListingsContent() {
   const currentProperties = filteredProperties.slice(indexOfFirstProperty, indexOfLastProperty)
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-background font-sans">
       <Header />
 
       {/* Hero Section */}
-      <section className="relative gradient-primary text-white section-padding">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Find Your Perfect Property</h1>
-            <p className="text-lg text-blue-100 mb-8">
-              Browse our extensive collection of properties and find your dream home
+      <section className="relative py-32 md:py-48 overflow-hidden">
+        <div className="absolute inset-0 bg-emerald-50 dark:bg-emerald-950/20 -z-10"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
+        
+        <div className="container-custom relative">
+          <div className="max-w-4xl">
+            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] uppercase tracking-[0.2em] mb-6">
+              <Sparkles className="w-4 h-4" />
+              Elite Collection
+            </div>
+            <h1 className="text-6xl md:text-8xl font-serif text-gray-900 dark:text-white leading-[0.9] tracking-tighter mb-8">
+              Discover your next <br/> legendary stay.
+            </h1>
+            <p className="text-xl text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed">
+              Explore our hand-picked selection of properties that define the future of living. From urban gems to coastal retreats.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Search Filters */}
-      <section className="py-8 bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            <div className="md:col-span-3">
-              <Select value={filters.type} onValueChange={(value) => handleFilterChange("type", value)}>
-                <SelectTrigger className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
-                  <SelectValue placeholder="Property Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Properties</SelectItem>
-                  <SelectItem value="house">House</SelectItem>
-                  <SelectItem value="apartment">Apartment</SelectItem>
-                  <SelectItem value="villa">Villa</SelectItem>
-                  <SelectItem value="condo">Condo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="md:col-span-3">
-              <Select value={filters.bedrooms} onValueChange={(value) => handleFilterChange("bedrooms", value)}>
-                <SelectTrigger className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
-                  <SelectValue placeholder="Bedrooms" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Any Bedrooms</SelectItem>
-                  <SelectItem value="1">1+ Bedroom</SelectItem>
-                  <SelectItem value="2">2+ Bedrooms</SelectItem>
-                  <SelectItem value="3">3+ Bedrooms</SelectItem>
-                  <SelectItem value="4">4+ Bedrooms</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="md:col-span-3">
+      {/* Search & Filters */}
+      <section className="sticky top-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-2xl border-y border-gray-100 dark:border-gray-800 py-6">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+            {/* Main Search */}
+            <div className="lg:col-span-4 relative group">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
               <Input
-                type="text"
-                placeholder="Search..."
-                className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                placeholder="Search location, neighborhood..."
+                className="pl-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 focus-visible:ring-emerald-500/20"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
-            <div className="md:col-span-3">
-              <Button
-                className="w-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center"
-                onClick={handleSearch}
-              >
-                <Search className="mr-2 h-4 w-4 text-white flex-shrink-0" />
-                <span>Search</span>
-              </Button>
+
+            {/* Selects */}
+            <div className="lg:col-span-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Select value={filters.type} onValueChange={(value) => handleFilterChange("type", value)}>
+                <SelectTrigger className="h-14 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-[11px] font-bold uppercase tracking-widest">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-gray-100 dark:border-gray-800">
+                  <SelectItem value="all">All Types</SelectItem>
+                  {(settings?.propertyTypes || ["House", "Apartment", "Condo", "Villa", "Land"]).map((type: string) => (
+                    <SelectItem key={type} value={type.toLowerCase()}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.priceType} onValueChange={(value) => handleFilterChange("priceType", value)}>
+                <SelectTrigger className="h-14 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-[11px] font-bold uppercase tracking-widest">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-gray-100 dark:border-gray-800">
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="sale">For Sale</SelectItem>
+                  <SelectItem value="rent">For Rent</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                  <SelectItem value="featured">Featured</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.bedrooms} onValueChange={(value) => handleFilterChange("bedrooms", value)}>
+                <SelectTrigger className="h-14 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-[11px] font-bold uppercase tracking-widest">
+                  <SelectValue placeholder="Beds" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-gray-100 dark:border-gray-800">
+                  <SelectItem value="all">Any Beds</SelectItem>
+                  <SelectItem value="1">1+ Bed</SelectItem>
+                  <SelectItem value="2">2+ Beds</SelectItem>
+                  <SelectItem value="3">3+ Beds</SelectItem>
+                  <SelectItem value="4">4+ Beds</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={handleSortChange}>
+                <SelectTrigger className="h-14 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-[11px] font-bold uppercase tracking-widest">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-gray-100 dark:border-gray-800">
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="price-asc">Price: Low</SelectItem>
+                  <SelectItem value="price-desc">Price: High</SelectItem>
+                  <SelectItem value="size-desc">Largest</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </div>
 
-          <div className="mt-4 card-base p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Price Range</label>
-                <div className="flex items-center space-x-4">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    value={filters.minPrice}
-                    onChange={(e) => handleFilterChange("minPrice", e.target.value)}
-                  />
-                  <span className="text-gray-600 dark:text-gray-400">to</span>
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  Property Size (sq ft)
-                </label>
-                <div className="flex items-center space-x-4">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    value={filters.minSize}
-                    onChange={(e) => handleFilterChange("minSize", e.target.value)}
-                  />
-                  <span className="text-gray-600 dark:text-gray-400">to</span>
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                    value={filters.maxSize}
-                    onChange={(e) => handleFilterChange("maxSize", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Bathrooms</label>
-                <Select value={filters.bathrooms} onValueChange={(value) => handleFilterChange("bathrooms", value)}>
-                  <SelectTrigger className="w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                    <SelectValue placeholder="Bathrooms" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="any">Any</SelectItem>
-                    <SelectItem value="1">1+</SelectItem>
-                    <SelectItem value="2">2+</SelectItem>
-                    <SelectItem value="3">3+</SelectItem>
-                    <SelectItem value="4">4+</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* View Toggle */}
+            <div className="lg:col-span-2 flex gap-2">
+              <Button 
+                variant={viewType === "grid" ? "default" : "outline"} 
+                size="icon" 
+                onClick={() => setViewType("grid")}
+                className={cn("h-14 w-14 rounded-2xl", viewType === "grid" ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200" : "border-gray-100 dark:border-gray-800")}
+              >
+                <Grid className="w-5 h-5" />
+              </Button>
+              <Button 
+                variant={viewType === "list" ? "default" : "outline"} 
+                size="icon" 
+                onClick={() => setViewType("list")}
+                className={cn("h-14 w-14 rounded-2xl", viewType === "list" ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200" : "border-gray-100 dark:border-gray-800")}
+              >
+                <List className="w-5 h-5" />
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Property Listings */}
-      <section className="py-12 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {filteredProperties.length} Properties Found
-            </h2>
-            <div className="flex items-center space-x-4">
-              <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
-                <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                  <SelectItem value="size-asc">Size: Small to Large</SelectItem>
-                  <SelectItem value="size-desc">Size: Large to Small</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={`border-gray-300 dark:border-gray-600 ${
-                    viewType === "grid"
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
-                  }`}
-                  onClick={() => setViewType("grid")}
-                >
-                  <LayoutGrid className="h-4 w-4 flex-shrink-0" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={`border-gray-300 dark:border-gray-600 ${
-                    viewType === "list"
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
-                  }`}
-                  onClick={() => setViewType("list")}
-                >
-                  <List className="h-4 w-4 flex-shrink-0" />
-                </Button>
-              </div>
+      {/* Content Section */}
+      <section className="py-20 flex-1">
+        <div className="container-custom">
+          {/* Results Summary */}
+          <div className="flex justify-between items-end mb-16 border-b border-gray-50 dark:border-gray-900 pb-8">
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Global Inventory</p>
+              <h2 className="text-4xl font-serif tracking-tight">
+                Showing {filteredProperties.length} matches
+              </h2>
             </div>
+            <p className="text-sm text-gray-400 font-medium italic">
+              Prices are inclusive of all taxes & local fees.
+            </p>
           </div>
 
           {filteredProperties.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400 mb-4">No properties found matching your criteria.</p>
+            <div className="py-32 text-center bg-gray-50 dark:bg-gray-900/50 rounded-[4rem] border border-dashed border-gray-200 dark:border-gray-800">
+              <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl">
+                <Search className="w-10 h-10 text-gray-300" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">No results found</h3>
+              <p className="text-gray-500 max-w-sm mx-auto mb-10 leading-relaxed font-medium">We couldn&apos;t find any properties matching your current filters. Try broadening your search.</p>
               <Button
                 onClick={() => {
-                  setFilters({
+                  const resetFilters = {
                     type: "all",
                     location: "all",
                     bedrooms: "all",
@@ -395,69 +456,71 @@ function ListingsContent() {
                     minSize: "",
                     maxSize: "",
                     bathrooms: "any",
+                    priceType: "all",
+                    featured: "all",
+                    best: "all",
                     features: [],
-                  })
+                  }
+                  setFilters(resetFilters)
                   setSearchTerm("")
+                  updateURL(resetFilters, "", sortBy)
                 }}
-                variant="outline"
+                className="rounded-full px-12 h-16 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 font-bold text-sm hover:scale-105 transition-transform"
               >
-                Clear Filters
+                Clear all filters
               </Button>
             </div>
           ) : (
-            <div className={viewType === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" : "space-y-6"}>
-              {currentProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} viewType={viewType} />
+            <div className={viewType === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" : "space-y-8"}>
+              {currentProperties.map((property, idx) => (
+                <div key={property.id} className="animate-in fade-in slide-in-from-bottom-12 duration-1000 fill-mode-both" style={{ animationDelay: `${idx * 100}ms` }}>
+                  <PropertyCard property={property} viewType={viewType} />
+                </div>
               ))}
             </div>
           )}
 
           {/* Pagination */}
           {filteredProperties.length > 0 && totalPages > 1 && (
-            <div className="flex justify-center mt-12">
-              <nav className="flex items-center space-x-2">
+            <div className="flex justify-center mt-32">
+              <div className="flex items-center p-2 rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-xl">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
-                  className="border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+                  className="w-12 h-12 rounded-full hover:bg-white dark:hover:bg-gray-800"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 >
-                  <ChevronLeft className="h-4 w-4 text-gray-900 dark:text-white flex-shrink-0" />
-                  <span className="sr-only">Previous page</span>
+                  <ChevronLeft className="w-5 h-5" />
                 </Button>
-
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pageNumber = i + 1
-                  return (
-                    <Button
-                      key={pageNumber}
-                      variant="outline"
-                      className={
-                        pageNumber === currentPage
-                          ? "border-primary bg-primary text-white hover:bg-primary/90"
-                          : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
-                      }
-                      onClick={() => setCurrentPage(pageNumber)}
+                
+                <div className="px-6 flex gap-4">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={cn(
+                        "w-12 h-12 rounded-full text-xs font-bold transition-all duration-300",
+                        currentPage === page 
+                          ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 shadow-lg scale-110" 
+                          : "text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                      )}
                     >
-                      {pageNumber}
-                    </Button>
-                  )
-                })}
-
-                {totalPages > 5 && <span className="px-2 text-gray-500">...</span>}
+                      {page}
+                    </button>
+                  ))}
+                </div>
 
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
-                  className="border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+                  className="w-12 h-12 rounded-full hover:bg-white dark:hover:bg-gray-800"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 >
-                  <ChevronRight className="h-4 w-4 text-gray-900 dark:text-white flex-shrink-0" />
-                  <span className="sr-only">Next page</span>
+                  <ChevronRight className="w-5 h-5" />
                 </Button>
-              </nav>
+              </div>
             </div>
           )}
         </div>

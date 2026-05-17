@@ -136,6 +136,38 @@ export interface Booking {
   updatedAt: string
 }
 
+export interface SiteSettings {
+  _id?: ObjectId
+  id: string
+  heroBackground: {
+    type: "image" | "video"
+    url: string
+  }
+  faqs?: {
+    question: string
+    answer: string
+  }[]
+  testimonials?: {
+    name: string
+    role: string
+    quote: string
+    image: string
+  }[]
+  cta?: {
+    title: string
+    description?: string
+    buttonText: string
+    buttonLink: string
+    backgroundImage: string
+    secondaryButtonText?: string
+    secondaryButtonLink?: string
+    badgeText?: string
+    ratingText?: string
+  }
+  propertyTypes?: string[]
+  updatedAt: string
+}
+
 // MongoDB Database class
 class MongoDatabase {
   private initialized = false
@@ -196,7 +228,7 @@ class MongoDatabase {
       // For other sequences, use the counter collection
       const result = await db
         .collection("counters")
-        .findOneAndUpdate({ _id: name }, { $inc: { seq: 1 } }, { upsert: true, returnDocument: "after" })
+        .findOneAndUpdate({ _id: name as any }, { $inc: { seq: 1 } }, { upsert: true, returnDocument: "after" })
       return result?.seq || 1
     } catch (error) {
       console.error("Error getting next sequence:", error)
@@ -507,6 +539,7 @@ class MongoDatabase {
     agentId?: string
     featured?: boolean
     best?: boolean
+    priceType?: string
   }): Promise<Property[]> {
     try {
       await this.ensureInitialized()
@@ -517,10 +550,9 @@ class MongoDatabase {
       if (filters?.agentId) query.agentId = filters.agentId
       if (filters?.featured) query.featured = true
       if (filters?.best) query.best = true
+      if (filters?.priceType) query.priceType = filters.priceType
 
-      console.log("Fetching properties with query:", query)
       const properties = await db.collection("properties").find(query).sort({ createdAt: -1 }).toArray()
-      console.log(`Found ${properties.length} properties`)
       return properties.map((property) => ({ ...property, _id: undefined })) as Property[]
     } catch (error) {
       console.error("Error fetching properties:", error)
@@ -544,9 +576,7 @@ class MongoDatabase {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      console.log("Fetching property by slug:", slug)
       const property = await db.collection("properties").findOne({ slug })
-      console.log("Property found:", property ? "Yes" : "No")
       return property ? ({ ...property, _id: undefined } as Property) : null
     } catch (error) {
       console.error("Error fetching property by slug:", error)
@@ -978,6 +1008,91 @@ class MongoDatabase {
     } catch (error) {
       console.error("Database health check failed:", error)
       return false
+    }
+  }
+
+  // Settings methods
+  async getSettings(): Promise<SiteSettings> {
+    try {
+      await this.ensureInitialized()
+      const db = await getDatabase()
+      let settings = await db.collection("settings").findOne({ id: "global" })
+      
+      if (!settings) {
+        // Create default settings if they don't exist
+        const defaultSettings: SiteSettings = {
+          id: "global",
+          heroBackground: {
+            type: "image",
+            url: "https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=2070"
+          },
+          faqs: [
+            { question: "What types of properties do you sell?", answer: "We specialize in modern residential properties, including smart homes, eco-friendly villas, and luxury urban apartments." },
+            { question: "How do I know if a property is a good investment?", answer: "We provide comprehensive market analysis and data-driven insights for every property listed on our platform." },
+            { question: "Do I need to hire a real estate agent?", answer: "While we facilitate the process, we recommend working with our certified partners to ensure a smooth transaction." },
+            { question: "What's the process for buying a property?", answer: "From viewing to closing, we guide you through every legal and financial step with total transparency." }
+          ],
+          testimonials: [
+            {
+              name: "Sophia Lorenza",
+              role: "CEO of LuxSpace",
+              quote: "Working with this team was a pleasure. They understood our vision and helped us find a property that exceeded our expectations. We couldn't have done it without them!",
+              image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1974"
+            }
+          ],
+          cta: {
+            title: "Ready to Make Your Dream Property a Reality?",
+            description: "Connect with our certified experts today to receive customized layout options, off-market pricing lists, and an unparalleled service experience.",
+            buttonText: "Get Started",
+            buttonLink: "/listings",
+            backgroundImage: "https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=format&fit=crop&q=80&w=2070",
+            secondaryButtonText: "Speak to an Agent",
+            secondaryButtonLink: "/contact",
+            badgeText: "Curated Living",
+            ratingText: "Rated 4.9/5 by Clients"
+          },
+          propertyTypes: ["House", "Apartment", "Condo", "Villa", "Land"],
+          updatedAt: new Date().toISOString()
+        }
+        await db.collection("settings").insertOne(defaultSettings)
+        settings = defaultSettings as any
+      }
+      
+      return { ...settings, _id: undefined } as SiteSettings
+    } catch (error) {
+      console.error("Error fetching settings:", error)
+      // Return a safe default
+      return {
+        id: "global",
+        heroBackground: {
+          type: "image",
+          url: "https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=2070"
+        },
+        updatedAt: new Date().toISOString()
+      } as SiteSettings
+    }
+  }
+
+  async updateSettings(updates: Partial<SiteSettings>): Promise<SiteSettings | null> {
+    try {
+      await this.ensureInitialized()
+      const db = await getDatabase()
+      
+      const updatedSettings = {
+        ...updates,
+        updatedAt: new Date().toISOString()
+      }
+      
+      const result = await db.collection("settings").findOneAndUpdate(
+        { id: "global" },
+        { $set: updatedSettings },
+        { returnDocument: "after", upsert: true }
+      )
+      
+      return result ? { ...result, _id: undefined } as SiteSettings : null
+    } catch (error) {
+      console.error("Error updating settings:", error)
+      return null
     }
   }
 }

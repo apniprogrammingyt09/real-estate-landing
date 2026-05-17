@@ -4,48 +4,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --background: 36 24% 98.5%;
+    --foreground: 30 8% 8%;
+    --card: 36 24% 98.5%;
+    --card-foreground: 30 8% 8%;
+    --popover: 36 24% 98.5%;
+    --popover-foreground: 30 8% 8%;
+    --primary: 168 68% 17%;
+    --primary-foreground: 36 24% 98.5%;
+    --secondary: 36 32% 64%;
+    --secondary-foreground: 30 8% 8%;
+    --muted: 36 10% 94%;
+    --muted-foreground: 30 6% 40%;
+    --accent: 36 32% 64%;
+    --accent-foreground: 30 8% 8%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --border: 30 8% 90%;
+    --input: 30 8% 90%;
+    --ring: 36 32% 64%;
+    --radius: 1.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 30 8% 5%;
+    --foreground: 36 20% 92%;
+    --card: 30 8% 5%;
+    --card-foreground: 36 20% 92%;
+    --popover: 30 8% 5%;
+    --popover-foreground: 36 20% 92%;
+    --primary: 36 32% 64%;
+    --primary-foreground: 30 8% 5%;
+    --secondary: 30 8% 12%;
+    --secondary-foreground: 36 20% 92%;
+    --muted: 30 8% 10%;
+    --muted-foreground: 30 6% 65%;
+    --accent: 36 32% 64%;
+    --accent-foreground: 30 8% 5%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --destructive-foreground: 36 20% 92%;
+    --border: 30 8% 14%;
+    --input: 30 8% 14%;
+    --ring: 36 32% 64%;
+  }
+
+  .font-sans {
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+
+  .font-serif {
+    font-family: var(--font-serif), Georgia, serif;
   }
 }
 
@@ -126,7 +134,7 @@
 
   /* Custom Button Styles */
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+    @apply bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
   }
 
   .btn-secondary {
@@ -134,7 +142,7 @@
   }
 
   .btn-outline {
-    @apply border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+    @apply border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
   }
 
   /* Typography */
@@ -172,15 +180,15 @@
 
   /* Gradient Backgrounds */
   .gradient-primary {
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, #06372d 0%, #10b981 100%);
   }
 
   .gradient-secondary {
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    background: linear-gradient(135deg, #0b5a4a 0%, #2dd4bf 100%);
   }
 
   .gradient-accent {
-    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    background: linear-gradient(135deg, #906b3a 0%, #d4c096 100%);
   }
 
   /* Card Styles */

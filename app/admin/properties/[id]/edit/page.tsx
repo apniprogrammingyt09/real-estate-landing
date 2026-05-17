@@ -46,7 +46,7 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
     best: false,
   })
 
-  const propertyTypes = ["House", "Apartment", "Condo", "Villa", "Townhouse", "Studio", "Duplex", "Commercial"]
+  const [propertyTypes, setPropertyTypes] = useState<string[]>(["House", "Apartment", "Condo", "Villa", "Townhouse", "Studio", "Duplex", "Commercial"])
 
   const availableFeatures = [
     "Swimming Pool",
@@ -83,6 +83,16 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
       if (!propertyData) {
         setError("Property not found")
         return
+      }
+
+      try {
+        const settingsRes = await fetch("/api/settings")
+        const settingsData = await settingsRes.json()
+        if (settingsData.propertyTypes) {
+          setPropertyTypes(settingsData.propertyTypes)
+        }
+      } catch (e) {
+        console.error("Error fetching settings:", e)
       }
 
       setProperty(propertyData)
@@ -139,10 +149,10 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
         neighborhood: formData.neighborhood.trim(),
         price: Number.parseFloat(formData.price),
         priceType: formData.priceType,
-        bedrooms: Number.parseInt(formData.bedrooms),
-        bathrooms: Number.parseFloat(formData.bathrooms),
-        size: Number.parseInt(formData.size),
-        yearBuilt: Number.parseInt(formData.yearBuilt),
+        bedrooms: formData.type.toLowerCase() === "land" ? 0 : Number.parseInt(formData.bedrooms) || 0,
+        bathrooms: formData.type.toLowerCase() === "land" ? 0 : Number.parseFloat(formData.bathrooms) || 0,
+        size: Number.parseInt(formData.size) || 0,
+        yearBuilt: formData.type.toLowerCase() === "land" ? 0 : Number.parseInt(formData.yearBuilt) || 0,
         features: formData.features,
         featured: formData.featured,
         best: formData.best,
@@ -302,40 +312,44 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="bedrooms">Bedrooms</Label>
-                      <Select value={formData.bedrooms} onValueChange={(value) => handleInputChange("bedrooms", value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[0, 1, 2, 3, 4, 5, 6].map((num) => (
-                            <SelectItem key={num} value={String(num)}>
-                              {num === 0 ? "Studio" : `${num} Bedroom${num > 1 ? "s" : ""}`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {formData.type.toLowerCase() !== "land" && (
+                      <>
+                        <div>
+                          <Label htmlFor="bedrooms">Bedrooms</Label>
+                          <Select value={formData.bedrooms} onValueChange={(value) => handleInputChange("bedrooms", value)}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[0, 1, 2, 3, 4, 5, 6].map((num) => (
+                                <SelectItem key={num} value={String(num)}>
+                                  {num === 0 ? "Studio" : `${num} Bedroom${num > 1 ? "s" : ""}`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                    <div>
-                      <Label htmlFor="bathrooms">Bathrooms</Label>
-                      <Select
-                        value={formData.bathrooms}
-                        onValueChange={(value) => handleInputChange("bathrooms", value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((num) => (
-                            <SelectItem key={num} value={String(num)}>
-                              {num} Bathroom{num > 1 ? "s" : ""}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        <div>
+                          <Label htmlFor="bathrooms">Bathrooms</Label>
+                          <Select
+                            value={formData.bathrooms}
+                            onValueChange={(value) => handleInputChange("bathrooms", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((num) => (
+                                <SelectItem key={num} value={String(num)}>
+                                  {num} Bathroom{num > 1 ? "s" : ""}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
 
                     <div>
                       <Label htmlFor="size">Size (sq ft)</Label>
@@ -347,15 +361,17 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="yearBuilt">Year Built</Label>
-                      <Input
-                        id="yearBuilt"
-                        type="number"
-                        value={formData.yearBuilt}
-                        onChange={(e) => handleInputChange("yearBuilt", e.target.value)}
-                      />
-                    </div>
+                    {formData.type.toLowerCase() !== "land" && (
+                      <div>
+                        <Label htmlFor="yearBuilt">Year Built</Label>
+                        <Input
+                          id="yearBuilt"
+                          type="number"
+                          value={formData.yearBuilt}
+                          onChange={(e) => handleInputChange("yearBuilt", e.target.value)}
+                        />
+                      </div>
+                    )}
 
                     <div className="md:col-span-2">
                       <Label htmlFor="description">Description</Label>

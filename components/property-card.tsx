@@ -2,6 +2,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { MapPin, Users, Bath, Square } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import ShareButton from "@/components/share-button"
 import LikeButton from "@/components/like-button"
 
@@ -17,7 +18,7 @@ interface Property {
   type: string
   featured: boolean
   best: boolean
-  image: string
+  image?: string
   images?: string[]
   slug: string
 }
@@ -34,81 +35,69 @@ export default function PropertyCard({ property, viewType = "grid" }: PropertyCa
   if (viewType === "list") {
     return (
       <Link href={`/listings/${property.slug}`}>
-        <div className="card-base card-hover overflow-hidden cursor-pointer flex group">
-          <div className="relative w-80 h-48 overflow-hidden">
+        <div className="bg-card text-card-foreground rounded-[2.5rem] border border-gray-100 dark:border-gray-800 overflow-hidden cursor-pointer flex group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500">
+          <div className="relative w-96 h-64 overflow-hidden">
             <Image
-              src={property.images?.[0] || property.image || "/placeholder.svg?height=300&width=400"}
+              src={property.images?.[0] || property.image || "/placeholder.svg?height=400&width=600"}
               alt={property.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.src = "/placeholder.svg?height=300&width=400"
-              }}
+              className="object-cover transition-transform duration-1000 group-hover:scale-110"
               priority={property.featured}
             />
-            <div className="absolute top-4 left-4 flex space-x-2">
-              <span
-                className={`${property.type === "FOR SALE" ? "bg-secondary" : "bg-primary"} text-white px-2 py-1 rounded text-xs font-medium`}
-              >
-                {property.type}
+            <div className="absolute top-6 left-6 flex flex-wrap gap-2">
+              <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-bold uppercase tracking-widest text-gray-900 shadow-sm">
+                {property.priceType === "sale" ? "For Sale" : "For Rent"}
               </span>
               {property.featured && (
-                <span className="bg-primary text-white px-2 py-1 rounded text-xs font-medium">FEATURED</span>
+                <span className="px-3 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                  FEATURED
+                </span>
               )}
               {property.best && (
-                <span className="bg-accent text-white px-2 py-1 rounded text-xs font-medium">PREMIUM</span>
+                <span className="px-3 py-1 rounded-full bg-amber-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-sm flex items-center gap-1">
+                  ★ PREMIUM
+                </span>
               )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="absolute top-4 right-4 flex space-x-2">
-              <div onClick={(e) => e.preventDefault()}>
-                <LikeButton
-                  propertyId={property.id}
-                  propertyTitle={property.title}
-                  variant="secondary"
-                  className="bg-white/90 hover:bg-white text-gray-700 hover:text-red-500 rounded-full shadow-sm"
-                />
-              </div>
-
-              <div onClick={(e) => e.preventDefault()}>
-                <ShareButton
-                  url={propertyUrl}
-                  title={property.title}
-                  variant="secondary"
-                  className="bg-white/90 hover:bg-white text-gray-700 hover:text-blue-500 rounded-full shadow-sm"
-                />
-              </div>
             </div>
           </div>
-          <div className="p-6 flex-1">
-            <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white group-hover:text-primary transition-colors">
-              {property.title}
-            </h3>
-            <div className="flex items-center mb-4">
-              <MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400 mr-2 flex-shrink-0 stroke-2" />
-              <span className="text-gray-500 dark:text-gray-400 text-sm">{property.address}</span>
+          <div className="p-10 flex-1 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-start text-emerald-600 font-bold text-[10px] tracking-widest uppercase">
+                <MapPin className="w-3 h-3 mr-2 mt-0.5 flex-shrink-0" />
+                <span className="line-clamp-2 break-words">{property.address}</span>
+              </div>
+              <h3 className="text-3xl font-serif tracking-tight text-gray-900 dark:text-white leading-tight line-clamp-1 break-words">
+                {property.title}
+              </h3>
             </div>
-            <div className="flex items-center space-x-6 mb-4">
-              <div className="flex items-center group-hover:text-primary transition-colors">
-                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2 flex-shrink-0 stroke-2" />
-                <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">{property.bedrooms} beds</span>
-              </div>
-              <div className="flex items-center group-hover:text-primary transition-colors">
-                <Bath className="w-4 h-4 text-green-600 dark:text-green-400 mr-2 flex-shrink-0 stroke-2" />
-                <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">{property.bathrooms} baths</span>
-              </div>
-              <div className="flex items-center group-hover:text-primary transition-colors">
-                <Square className="w-4 h-4 text-orange-600 dark:text-orange-400 mr-2 flex-shrink-0 stroke-2" />
-                <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">{property.size} sq ft</span>
+            
+            <div className="flex items-center space-x-8">
+            {property.type.toLowerCase() !== "land" && (
+              <>
+                <div className="flex items-center text-gray-500 text-sm">
+                  <Users className="w-4 h-4 mr-2" />
+                  <span className="font-bold">{property.bedrooms}</span> <span className="ml-1">Beds</span>
+                </div>
+                <div className="flex items-center text-gray-500 text-sm">
+                  <Bath className="w-4 h-4 mr-2" />
+                  <span className="font-bold">{property.bathrooms}</span> <span className="ml-1">Baths</span>
+                </div>
+              </>
+            )}
+              <div className="flex items-center text-gray-500 text-sm">
+                <Square className="w-4 h-4 mr-2" />
+                <span className="font-bold">{property.size}</span> <span className="ml-1">m²</span>
               </div>
             </div>
-            <div className="text-2xl font-bold text-primary group-hover:scale-105 transition-transform origin-left">
-              ${property.price.toLocaleString()}
-              {property.priceType === "rent" && (
-                <span className="text-sm text-gray-500 dark:text-gray-400">/month</span>
-              )}
+
+            <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-800">
+              <div className="text-3xl font-bold tracking-tighter">
+                ${property.price.toLocaleString()}
+                {property.priceType === "rent" && <span className="text-sm text-gray-500 font-normal">/mo</span>}
+              </div>
+              <Button size="icon" variant="outline" className="rounded-full w-12 h-12">
+                <Users className="w-5 h-5" />
+              </Button>
             </div>
           </div>
         </div>
@@ -118,80 +107,63 @@ export default function PropertyCard({ property, viewType = "grid" }: PropertyCa
 
   return (
     <Link href={`/listings/${property.slug}`}>
-      <div className="card-base card-hover overflow-hidden cursor-pointer group">
-        <div className="relative overflow-hidden">
+      <div className="group bg-card text-card-foreground rounded-[2.5rem] border border-gray-100 dark:border-gray-800 overflow-hidden cursor-pointer hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500">
+        <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-            src={property.images?.[0] || property.image || "/placeholder.svg?height=300&width=400"}
+            src={property.images?.[0] || property.image || "/placeholder.svg?height=400&width=600"}
             alt={property.title}
-            width={500}
-            height={300}
-            className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.src = "/placeholder.svg?height=300&width=400"
-            }}
+            fill
+            className="object-cover transition-transform duration-1000 group-hover:scale-110"
             priority={property.featured}
           />
-          <div className="absolute top-4 left-4 flex space-x-2">
-            <span
-              className={`${property.type === "FOR SALE" ? "bg-secondary" : "bg-primary"} text-white px-2 py-1 rounded text-xs font-medium`}
-            >
-              {property.type}
+          <div className="absolute top-6 left-6 flex flex-wrap gap-2">
+            <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-bold uppercase tracking-widest text-gray-900 shadow-sm">
+              {property.priceType === "sale" ? "For Sale" : "For Rent"}
             </span>
             {property.featured && (
-              <span className="bg-primary text-white px-2 py-1 rounded text-xs font-medium">FEATURED</span>
+              <span className="px-3 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                FEATURED
+              </span>
             )}
             {property.best && (
-              <span className="bg-accent text-white px-2 py-1 rounded text-xs font-medium">PREMIUM</span>
+              <span className="px-3 py-1 rounded-full bg-amber-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-sm flex items-center gap-1">
+                ★ PREMIUM
+              </span>
             )}
           </div>
-
-          {/* Action Buttons */}
-          <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div onClick={(e) => e.preventDefault()}>
-              <LikeButton
-                propertyId={property.id}
-                propertyTitle={property.title}
-                variant="secondary"
-                className="bg-white/90 hover:bg-white text-gray-700 hover:text-red-500 rounded-full shadow-sm"
-              />
+          
+          {property.type.toLowerCase() !== "land" && (
+            <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+              <div className="flex gap-2">
+                <div className="px-3 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center gap-2">
+                  <Users className="w-3 h-3" />
+                  <span className="text-xs font-bold">{property.bedrooms}</span>
+                </div>
+                <div className="px-3 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center gap-2">
+                  <Bath className="w-3 h-3" />
+                  <span className="text-xs font-bold">{property.bathrooms}</span>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-gray-900 shadow-lg scale-0 group-hover:scale-100 transition-transform duration-500">
+                <Users className="w-5 h-5" />
+              </div>
             </div>
-
-            <div onClick={(e) => e.preventDefault()}>
-              <ShareButton
-                url={propertyUrl}
-                title={property.title}
-                variant="secondary"
-                className="bg-white/90 hover:bg-white text-gray-700 hover:text-blue-500 rounded-full shadow-sm"
-              />
-            </div>
-          </div>
+          )}
         </div>
-        <div className="p-6">
-          <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white group-hover:text-primary transition-colors">
-            {property.title}
-          </h3>
-          <div className="flex items-center mb-4">
-            <MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400 mr-1 flex-shrink-0 stroke-2" />
-            <span className="text-gray-500 dark:text-gray-400 text-sm">{property.address}</span>
+        
+        <div className="p-8 space-y-4">
+          <div className="flex items-start text-emerald-600 font-bold text-[10px] tracking-widest uppercase">
+            <MapPin className="w-3 h-3 mr-2 mt-0.5 flex-shrink-0" />
+            <span className="line-clamp-2 break-words">{property.address}</span>
           </div>
-          <div className="flex justify-between mb-6">
-            <div className="flex items-center group-hover:text-primary transition-colors">
-              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-1 flex-shrink-0 stroke-2" />
-              <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">{property.bedrooms}</span>
+          <div className="flex justify-between items-start gap-4">
+            <h3 className="text-2xl font-serif tracking-tight text-gray-900 dark:text-white leading-tight group-hover:text-emerald-600 transition-colors line-clamp-2 break-words flex-1">
+              {property.title}
+            </h3>
+            <div className="text-xl font-bold tracking-tighter text-right flex-shrink-0">
+              ${property.price.toLocaleString()}
+              {property.priceType === "rent" && <div className="text-[10px] text-gray-400 font-normal uppercase tracking-widest">per month</div>}
             </div>
-            <div className="flex items-center group-hover:text-primary transition-colors">
-              <Bath className="w-4 h-4 text-green-600 dark:text-green-400 mr-1 flex-shrink-0 stroke-2" />
-              <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">{property.bathrooms}</span>
-            </div>
-            <div className="flex items-center group-hover:text-primary transition-colors">
-              <Square className="w-4 h-4 text-orange-600 dark:text-orange-400 mr-1 flex-shrink-0 stroke-2" />
-              <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">{property.size}</span>
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-primary group-hover:scale-105 transition-transform origin-left">
-            ${property.price.toLocaleString()}
-            {property.priceType === "rent" && <span className="text-sm text-gray-500 dark:text-gray-400">/month</span>}
           </div>
         </div>
       </div>

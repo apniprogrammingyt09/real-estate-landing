@@ -4,7 +4,7 @@ import { FileText, Scale, Shield, AlertTriangle, Users, Mail } from "lucide-reac
 
 export default function TermsPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
 
       {/* Hero Section */}
@@ -16,16 +16,16 @@ export default function TermsPage() {
               <Scale className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Terms of Service</h1>
-            <p className="text-xl text-blue-100 leading-relaxed">
+            <p className="text-xl text-emerald-100 leading-relaxed">
               Please read these terms carefully before using our real estate services and website.
             </p>
-            <p className="text-blue-200 mt-4">Last updated: January 2024</p>
+            <p className="text-emerald-200 mt-4">Last updated: January 2024</p>
           </div>
         </div>
       </section>
 
       {/* Terms Content */}
-      <section className="section-padding bg-white dark:bg-gray-900">
+      <section className="section-padding bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="prose prose-lg max-w-none dark:prose-invert">

@@ -92,8 +92,8 @@ export default function AgentDashboard() {
       value: stats?.totalProperties || 0,
       change: "+2 this month",
       icon: Building,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-100",
     },
     {
       title: "Active Listings",
@@ -244,7 +244,7 @@ export default function AgentDashboard() {
                       <div className="flex-shrink-0">
                         {activity.type === "lead" && <Users className="h-5 w-5 text-purple-500" />}
                         {activity.type === "booking" && <Calendar className="h-5 w-5 text-orange-500" />}
-                        {activity.type === "message" && <MessageSquare className="h-5 w-5 text-blue-500" />}
+                        {activity.type === "message" && <MessageSquare className="h-5 w-5 text-emerald-500" />}
                         {activity.type === "property" && <Building className="h-5 w-5 text-green-500" />}
                       </div>
                       <div className="flex-1 min-w-0">

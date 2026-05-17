@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type")
+    const priceType = searchParams.get("priceType")
     const status = searchParams.get("status")
     const featured = searchParams.get("featured") === "true"
     const best = searchParams.get("best") === "true"
@@ -17,9 +18,13 @@ export async function GET(request: NextRequest) {
 
     let properties = await db.getProperties(filters)
 
-    // Apply additional filters
+    // Apply additional filters with safety checks
     if (type && type !== "all") {
-      properties = properties.filter((p) => p.type.toLowerCase() === type.toLowerCase())
+      properties = properties.filter((p) => p.type && p.type.toLowerCase() === type.toLowerCase())
+    }
+
+    if (priceType && priceType !== "all") {
+      properties = properties.filter((p) => p.priceType && p.priceType.toLowerCase() === priceType.toLowerCase())
     }
 
     return NextResponse.json(properties)

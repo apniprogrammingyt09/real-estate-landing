@@ -101,7 +101,7 @@ export default function AgentLeads() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "new":
-        return "bg-blue-100 text-blue-800"
+        return "bg-emerald-100 text-emerald-800"
       case "contacted":
         return "bg-yellow-100 text-yellow-800"
       case "qualified":
@@ -158,7 +158,7 @@ export default function AgentLeads() {
                 <span className="text-lg font-bold">{filteredLeads.length}</span>
                 <span className="text-sm">Total Leads</span>
               </div>
-              <div className="bg-blue-500 text-white px-4 py-2 rounded-full flex items-center space-x-2">
+              <div className="bg-emerald-500 text-white px-4 py-2 rounded-full flex items-center space-x-2">
                 <span className="text-lg font-bold">{filteredLeads.filter((l) => l.status === "new").length}</span>
                 <span className="text-sm">New</span>
               </div>

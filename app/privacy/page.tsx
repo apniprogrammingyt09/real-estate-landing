@@ -4,7 +4,7 @@ import { Shield, Eye, Lock, Users, FileText, Mail } from "lucide-react"
 
 export default function PrivacyPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
 
       {/* Hero Section */}
@@ -16,17 +16,17 @@ export default function PrivacyPage() {
               <Shield className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Privacy Policy</h1>
-            <p className="text-xl text-blue-100 leading-relaxed">
+            <p className="text-xl text-emerald-100 leading-relaxed">
               Your privacy is important to us. This policy explains how we collect, use, and protect your personal
               information.
             </p>
-            <p className="text-blue-200 mt-4">Last updated: January 2024</p>
+            <p className="text-emerald-200 mt-4">Last updated: January 2024</p>
           </div>
         </div>
       </section>
 
       {/* Privacy Content */}
-      <section className="section-padding bg-white dark:bg-gray-900">
+      <section className="section-padding bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="prose prose-lg max-w-none dark:prose-invert">
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
                     </ul>
                   </div>
 
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-lg">
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">We do not:</h4>
                     <ul className="list-disc list-inside space-y-1 ml-4">
                       <li>Sell your personal information to third parties</li>

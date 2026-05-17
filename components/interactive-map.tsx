@@ -1,11 +1,13 @@
 "use client"
 
 import type React from "react"
-
-import { useEffect, useRef, useState } from "react"
-import { MapPin, Search } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { MapPin, Search, Crosshair } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import Map, { Marker, NavigationControl } from "react-map-gl/maplibre"
+import maplibregl from "maplibre-gl"
+import "maplibre-gl/dist/maplibre-gl.css"
 
 interface InteractiveMapProps {
   onLocationSelect: (lat: number, lng: number, address: string) => void
@@ -13,113 +15,114 @@ interface InteractiveMapProps {
   initialLng?: number
 }
 
+// A free minimalist raster tile style using OpenStreetMap
+const mapStyle = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "&copy; OpenStreetMap Contributors",
+    },
+  },
+  layers: [
+    {
+      id: "osm",
+      type: "raster",
+      source: "osm",
+      minzoom: 0,
+      maxzoom: 19,
+    },
+  ],
+} as const
+
 export default function InteractiveMap({ onLocationSelect, initialLat, initialLng }: InteractiveMapProps) {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [mapLoaded, setMapLoaded] = useState(false)
-  const [map, setMap] = useState<any>(null)
-  const [marker, setMarker] = useState<any>(null)
+  const [markerPosition, setMarkerPosition] = useState({
+    lat: initialLat || 40.7128,
+    lng: initialLng || -74.006,
+  })
+  
+  const [viewState, setViewState] = useState({
+    longitude: initialLng || -74.006,
+    latitude: initialLat || 40.7128,
+    zoom: 13
+  })
+  
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
+  const [isLocating, setIsLocating] = useState(false)
+  const mapRef = useRef<any>(null)
 
-  useEffect(() => {
-    // Dynamically import Leaflet to avoid SSR issues
-    const loadLeaflet = async () => {
-      if (typeof window !== "undefined") {
-        const L = (await import("leaflet")).default
-
-        // Fix for default markers in Leaflet
-        delete (L.Icon.Default.prototype as any)._getIconUrl
-        L.Icon.Default.mergeOptions({
-          iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-          iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-          shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-        })
-
-        setMapLoaded(true)
-        return L
-      }
-    }
-
-    loadLeaflet()
-  }, [])
-
-  useEffect(() => {
-    if (mapLoaded && mapRef.current) {
-      const initMap = async () => {
-        const L = (await import("leaflet")).default
-
-        // Default to New York City if no initial coordinates
-        const defaultLat = initialLat || 40.7128
-        const defaultLng = initialLng || -74.006
-
-        // Initialize the map
-        const newMap = L.map(mapRef.current!, {
-          center: [defaultLat, defaultLng],
-          zoom: 13,
-          zoomControl: true,
-        })
-
-        // Add OpenStreetMap tiles
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
-        }).addTo(newMap)
-
-        setMap(newMap)
-
-        // Add marker for initial location
-        const newMarker = L.marker([defaultLat, defaultLng], {
-          draggable: true,
-        }).addTo(newMap)
-
-        setMarker(newMarker)
-
-        // Handle marker drag events
-        newMarker.on("dragend", async (e: any) => {
-          const position = e.target.getLatLng()
-          const address = await reverseGeocode(position.lat, position.lng)
-          onLocationSelect(position.lat, position.lng, address)
-        })
-
-        // Handle map click events
-        newMap.on("click", async (e: any) => {
-          const { lat, lng } = e.latlng
-          newMarker.setLatLng([lat, lng])
-          const address = await reverseGeocode(lat, lng)
-          onLocationSelect(lat, lng, address)
-        })
-
-        // Initial address lookup
-        const initialAddress = await reverseGeocode(defaultLat, defaultLng)
-        onLocationSelect(defaultLat, defaultLng, initialAddress)
-      }
-
-      initMap()
-    }
-  }, [mapLoaded, initialLat, initialLng, onLocationSelect])
-
-  // Simple reverse geocoding using Nominatim (OpenStreetMap's geocoding service)
-  const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
+  // Reverse geocoding using Nominatim (free OSM geocoder)
+  const reverseGeocode = async (lat: number, lng: number) => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
       )
       const data = await response.json()
-      return data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+      const address = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+      onLocationSelect(lat, lng, address)
     } catch (error) {
       console.error("Reverse geocoding failed:", error)
-      return `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+      onLocationSelect(lat, lng, `${lat.toFixed(6)}, ${lng.toFixed(6)}`)
     }
   }
 
-  // Forward geocoding using Nominatim
+  // Initial reverse geocode on mount
+  useEffect(() => {
+    reverseGeocode(markerPosition.lat, markerPosition.lng)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const getUserLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser")
+      return
+    }
+
+    setIsLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude
+        const lng = position.coords.longitude
+        
+        setMarkerPosition({ lat, lng })
+        setViewState({ ...viewState, latitude: lat, longitude: lng, zoom: 15 })
+        reverseGeocode(lat, lng)
+        setIsLocating(false)
+      },
+      (error) => {
+        console.error("Error getting location:", error)
+        alert("Unable to retrieve your location. Please check your browser permissions.")
+        setIsLocating(false)
+      }
+    )
+  }
+
+  const handleMapClick = (e: any) => {
+    const lat = e.lngLat.lat
+    const lng = e.lngLat.lng
+    setMarkerPosition({ lat, lng })
+    reverseGeocode(lat, lng)
+  }
+
+  const handleMarkerDragEnd = (e: any) => {
+    const lat = e.lngLat.lat
+    const lng = e.lngLat.lng
+    setMarkerPosition({ lat, lng })
+    reverseGeocode(lat, lng)
+  }
+
   const searchLocation = async () => {
-    if (!searchQuery.trim() || !map || !marker) return
+    if (!searchQuery.trim()) return
 
     setIsSearching(true)
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          searchQuery
+        )}&limit=1&addressdetails=1`
       )
       const data = await response.json()
 
@@ -128,11 +131,8 @@ export default function InteractiveMap({ onLocationSelect, initialLat, initialLn
         const lat = Number.parseFloat(result.lat)
         const lng = Number.parseFloat(result.lon)
 
-        // Update map and marker
-        map.setView([lat, lng], 15)
-        marker.setLatLng([lat, lng])
-
-        // Notify parent component
+        setMarkerPosition({ lat, lng })
+        setViewState({ ...viewState, latitude: lat, longitude: lng, zoom: 15 })
         onLocationSelect(lat, lng, result.display_name)
       }
     } catch (error) {
@@ -149,16 +149,8 @@ export default function InteractiveMap({ onLocationSelect, initialLat, initialLn
 
   return (
     <div className="relative w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border">
-      {/* Leaflet CSS */}
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-        crossOrigin=""
-      />
-
       {/* Search Box */}
-      <div className="absolute top-4 left-4 right-4 z-[1000]">
+      <div className="absolute top-4 left-4 right-4 z-[10]">
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
           <Input
             type="text"
@@ -167,7 +159,7 @@ export default function InteractiveMap({ onLocationSelect, initialLat, initialLn
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 bg-white dark:bg-gray-800 shadow-lg"
           />
-          <Button type="submit" size="sm" disabled={isSearching} className="bg-primary hover:bg-primary/90">
+          <Button type="submit" size="sm" disabled={isSearching} className="bg-primary hover:bg-primary/90 text-white shadow-lg">
             {isSearching ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
@@ -175,23 +167,52 @@ export default function InteractiveMap({ onLocationSelect, initialLat, initialLn
             )}
           </Button>
         </form>
+        <div className="mt-2 flex justify-end">
+          <Button 
+            type="button" 
+            size="sm" 
+            variant="secondary"
+            onClick={getUserLocation}
+            disabled={isLocating}
+            className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-lg border dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            {isLocating ? (
+              <div className="w-4 h-4 mr-2 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Crosshair className="w-4 h-4 mr-2" />
+            )}
+            Use My Location
+          </Button>
+        </div>
       </div>
 
-      <div ref={mapRef} className="absolute inset-0">
-        {!mapLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-gray-600 dark:text-gray-400">Loading Map...</p>
-            </div>
-          </div>
-        )}
+      <div className="absolute inset-0 z-0">
+        <Map
+          ref={mapRef}
+          {...viewState}
+          onMove={evt => setViewState(evt.viewState)}
+          mapLib={maplibregl as any}
+          mapStyle={mapStyle as any}
+          onClick={handleMapClick}
+        >
+          <NavigationControl position="bottom-right" />
+          
+          <Marker
+            longitude={markerPosition.lng}
+            latitude={markerPosition.lat}
+            anchor="bottom"
+            draggable
+            onDragEnd={handleMarkerDragEnd}
+          >
+            <MapPin className="h-8 w-8 text-red-500 fill-white dark:fill-gray-900 drop-shadow-md cursor-pointer" />
+          </Marker>
+        </Map>
       </div>
 
-      <div className="absolute bottom-4 left-4 bg-white dark:bg-gray-800 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[1000]">
+      <div className="absolute bottom-4 left-4 bg-white dark:bg-gray-800 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[10] border dark:border-gray-700 pointer-events-none">
         <div className="flex items-center space-x-2">
           <MapPin className="w-3 h-3 text-red-500" />
-          <span className="text-sm font-medium text-gray-900 dark:text-white">Click or drag to select location</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">Click or drag pin to select location</span>
         </div>
       </div>
     </div>

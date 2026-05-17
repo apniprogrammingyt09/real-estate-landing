@@ -18,8 +18,8 @@ export default function StatsCard({ title, value, icon: Icon, trend, trendUp = t
     <Card className={cn("hover:shadow-lg transition-shadow duration-200", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</CardTitle>
-        <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <Icon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+          <Icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
         </div>
       </CardHeader>
       <CardContent>

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const { currentPassword, newPassword } = await request.json()
 

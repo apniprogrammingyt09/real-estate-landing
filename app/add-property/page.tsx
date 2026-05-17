@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,6 +21,22 @@ export default function AddPropertyPage() {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [propertyTypes, setPropertyTypes] = useState<string[]>(["House", "Apartment", "Condo", "Villa", "Townhouse", "Studio", "Duplex", "Commercial"])
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/settings")
+        const data = await response.json()
+        if (data.propertyTypes) {
+          setPropertyTypes(data.propertyTypes)
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error)
+      }
+    }
+    fetchSettings()
+  }, [])
 
   const totalSteps = 5
 
@@ -54,8 +70,6 @@ export default function AddPropertyPage() {
     submittedByEmail: "",
     submittedByPhone: "",
   })
-
-  const propertyTypes = ["House", "Apartment", "Condo", "Villa", "Townhouse", "Studio", "Duplex", "Commercial"]
 
   const availableFeatures = [
     "Swimming Pool",
@@ -122,6 +136,28 @@ export default function AddPropertyPage() {
           throw new Error(`File ${file.name} is too large. Maximum size is 5MB`)
         }
 
+        // Validate image dimensions (min 800x600px)
+        try {
+          const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+            const img = new window.Image()
+            img.src = URL.createObjectURL(file)
+            img.onload = () => {
+              resolve({ width: img.width, height: img.height })
+              URL.revokeObjectURL(img.src)
+            }
+            img.onerror = () => {
+              reject(new Error("Failed to load image for resolution validation"))
+              URL.revokeObjectURL(img.src)
+            }
+          })
+
+          if (dimensions.width < 800 || dimensions.height < 600) {
+            throw new Error(`File ${file.name} resolution is too low. Minimum dimensions are 800x600px. (Current: ${dimensions.width}x${dimensions.height}px)`)
+          }
+        } catch (err) {
+          throw new Error(err instanceof Error ? err.message : `Could not validate dimensions of file ${file.name}`)
+        }
+
         const filename = `property-${Date.now()}-${i}-${file.name}`
 
         const response = await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, {
@@ -159,6 +195,15 @@ export default function AddPropertyPage() {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
+        if (formData.type.toLowerCase().trim() === "land") {
+          return !!(
+            formData.title &&
+            formData.description &&
+            formData.type &&
+            formData.price &&
+            formData.size
+          )
+        }
         return !!(
           formData.title &&
           formData.description &&
@@ -222,11 +267,13 @@ export default function AddPropertyPage() {
       if (isNaN(price) || price <= 0) {
         throw new Error("Please enter a valid price")
       }
-      if (isNaN(bedrooms) || bedrooms < 0) {
-        throw new Error("Please enter a valid number of bedrooms")
-      }
-      if (isNaN(bathrooms) || bathrooms < 0) {
-        throw new Error("Please enter a valid number of bathrooms")
+      if (formData.type.toLowerCase().trim() !== "land") {
+        if (isNaN(bedrooms) || bedrooms < 0) {
+          throw new Error("Please enter a valid number of bedrooms")
+        }
+        if (isNaN(bathrooms) || bathrooms < 0) {
+          throw new Error("Please enter a valid number of bathrooms")
+        }
       }
       if (isNaN(size) || size <= 0) {
         throw new Error("Please enter a valid size")
@@ -298,6 +345,10 @@ export default function AddPropertyPage() {
         throw new Error(errorData.error || "Failed to submit property")
       }
 
+      // Scroll to top immediately to keep the success UI perfectly centered relative to the viewport
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "instant" })
+      }
       setSubmitted(true)
 
       // Redirect to success page after 3 seconds
@@ -314,18 +365,25 @@ export default function AddPropertyPage() {
 
   if (submitted) {
     return (
-      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+      <div className="flex flex-col min-h-screen bg-background">
         <Header />
-        <div className="flex-1 flex items-center justify-center py-16">
-          <Card className="w-full max-w-md">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Property Submitted!</h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Your property has been submitted for review. Our admin team will review and approve it shortly.
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-500">Redirecting to listings page...</p>
+        <div className="flex-1 flex items-center justify-center px-4 py-24 md:py-32">
+          <Card className="w-full max-w-md border-gray-100 dark:border-gray-800 rounded-[2.5rem] shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 animate-in fade-in zoom-in-95 duration-500">
+            <CardContent className="pt-12 pb-12 px-8">
+              <div className="text-center space-y-6">
+                <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-950/30 rounded-full flex items-center justify-center mx-auto animate-bounce">
+                  <CheckCircle className="h-10 w-10 text-emerald-500" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-serif tracking-tight text-gray-900 dark:text-white">Property Submitted!</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-sans">
+                    Your property listing has been successfully sent for review. Our administration team will verify the details and activate it shortly.
+                  </p>
+                </div>
+                <div className="pt-4 flex flex-col items-center gap-2">
+                  <Loader2 className="h-5 w-5 text-emerald-500 animate-spin" />
+                  <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">Redirecting to listings page...</p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -339,15 +397,15 @@ export default function AddPropertyPage() {
     switch (currentStep) {
       case 1:
         return (
-          <Card>
-            <CardHeader>
+          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <Home className="h-5 w-5" />
                 <span>Property Details</span>
               </CardTitle>
               <CardDescription>Tell us about your property</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8 p-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <Label htmlFor="title">Property Title *</Label>
@@ -401,37 +459,41 @@ export default function AddPropertyPage() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="bedrooms">Bedrooms *</Label>
-                  <Select value={formData.bedrooms} onValueChange={(value) => handleInputChange("bedrooms", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select bedrooms" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[0, 1, 2, 3, 4, 5, 6].map((num) => (
-                        <SelectItem key={num} value={String(num)}>
-                          {num === 0 ? "Studio" : `${num} Bedroom${num > 1 ? "s" : ""}`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {formData.type.toLowerCase().trim() !== "land" && (
+                  <>
+                    <div>
+                      <Label htmlFor="bedrooms">Bedrooms *</Label>
+                      <Select value={formData.bedrooms} onValueChange={(value) => handleInputChange("bedrooms", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select bedrooms" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[0, 1, 2, 3, 4, 5, 6].map((num) => (
+                            <SelectItem key={num} value={String(num)}>
+                              {num === 0 ? "Studio" : `${num} Bedroom${num > 1 ? "s" : ""}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div>
-                  <Label htmlFor="bathrooms">Bathrooms *</Label>
-                  <Select value={formData.bathrooms} onValueChange={(value) => handleInputChange("bathrooms", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select bathrooms" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((num) => (
-                        <SelectItem key={num} value={String(num)}>
-                          {num} Bathroom{num > 1 ? "s" : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div>
+                      <Label htmlFor="bathrooms">Bathrooms *</Label>
+                      <Select value={formData.bathrooms} onValueChange={(value) => handleInputChange("bathrooms", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select bathrooms" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((num) => (
+                            <SelectItem key={num} value={String(num)}>
+                              {num} Bathroom{num > 1 ? "s" : ""}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
 
                 <div>
                   <Label htmlFor="size">Size (sq ft) *</Label>
@@ -445,16 +507,18 @@ export default function AddPropertyPage() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="yearBuilt">Year Built</Label>
-                  <Input
-                    id="yearBuilt"
-                    type="number"
-                    placeholder="e.g., 2020"
-                    value={formData.yearBuilt}
-                    onChange={(e) => handleInputChange("yearBuilt", e.target.value)}
-                  />
-                </div>
+                {formData.type.toLowerCase().trim() !== "land" && (
+                  <div>
+                    <Label htmlFor="yearBuilt">Year Built</Label>
+                    <Input
+                      id="yearBuilt"
+                      type="number"
+                      placeholder="e.g., 2020"
+                      value={formData.yearBuilt}
+                      onChange={(e) => handleInputChange("yearBuilt", e.target.value)}
+                    />
+                  </div>
+                )}
 
                 <div className="md:col-span-2">
                   <Label htmlFor="description">Description *</Label>
@@ -474,15 +538,15 @@ export default function AddPropertyPage() {
 
       case 2:
         return (
-          <Card>
-            <CardHeader>
+          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <MapPin className="h-5 w-5" />
                 <span>Location & Map</span>
               </CardTitle>
               <CardDescription>Where is your property located?</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8 p-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <Label htmlFor="address">Full Address *</Label>
@@ -538,15 +602,15 @@ export default function AddPropertyPage() {
 
       case 3:
         return (
-          <Card>
-            <CardHeader>
+          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <ImageIcon className="h-5 w-5" />
                 <span>Property Images</span>
               </CardTitle>
               <CardDescription>Upload high-quality images of your property (max 10 images, 5MB each)</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8 p-8">
               <div>
                 <Label htmlFor="images">Upload Images</Label>
                 <div className="mt-2">
@@ -608,12 +672,12 @@ export default function AddPropertyPage() {
 
       case 4:
         return (
-          <Card>
-            <CardHeader>
+          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
               <CardTitle>Property Features</CardTitle>
               <CardDescription>Select all features that apply to your property</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-8">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {availableFeatures.map((feature) => (
                   <div key={feature} className="flex items-center space-x-2">
@@ -634,15 +698,15 @@ export default function AddPropertyPage() {
 
       case 5:
         return (
-          <Card>
-            <CardHeader>
+          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span>Contact Information</span>
               </CardTitle>
               <CardDescription>Provide your contact details for potential buyers/renters</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8 p-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <Label htmlFor="submittedByName">Full Name *</Label>
@@ -689,25 +753,30 @@ export default function AddPropertyPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
 
       {/* Hero Section */}
-      <section className="relative gradient-primary text-white py-16">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative container mx-auto px-4">
+      <section className="relative py-32 md:py-40 overflow-hidden border-b border-gray-100 dark:border-gray-800">
+        <div className="absolute inset-0 bg-emerald-50 dark:bg-emerald-950/20 -z-10"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/4"></div>
+        
+        <div className="container-custom relative">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">List Your Property</h1>
-            <p className="text-lg text-blue-100 mb-8">
-              Submit your property for review and reach thousands of potential buyers and renters
+            <h1 className="text-5xl md:text-7xl font-serif text-gray-900 dark:text-white tracking-tight mb-6 leading-tight">
+              List your property.
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-400">
+              Submit your property for review and reach our curated network of premium buyers and renters.
             </p>
           </div>
         </div>
       </section>
 
       {/* Form Section */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4">
+      <section className="py-24 bg-background">
+        <div className="container-custom">
           <div className="max-w-4xl mx-auto">
             {/* Progress Bar */}
             <div className="mb-8">
@@ -717,9 +786,9 @@ export default function AddPropertyPage() {
                 </span>
                 <span className="text-sm text-gray-500">{Math.round((currentStep / totalSteps) * 100)}% Complete</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
                 <div
-                  className="bg-primary h-2 rounded-full transition-all duration-300 ease-in-out"
+                  className="bg-emerald-500 h-full rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                 ></div>
               </div>
@@ -735,20 +804,20 @@ export default function AddPropertyPage() {
             <div className="mb-8">{renderStep()}</div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            <div className="flex justify-between pt-8 border-t border-gray-100 dark:border-gray-800">
               <Button
                 type="button"
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="flex items-center"
+                className="flex items-center rounded-full px-8 h-12 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Previous
               </Button>
 
               {currentStep < totalSteps ? (
-                <Button type="button" onClick={nextStep} className="flex items-center bg-primary hover:bg-primary/90">
+                <Button type="button" onClick={nextStep} className="flex items-center rounded-full px-8 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 hover:scale-105 transition-transform">
                   Next
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -757,7 +826,7 @@ export default function AddPropertyPage() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="flex items-center bg-primary hover:bg-primary/90"
+                  className="flex items-center rounded-full px-8 h-12 bg-emerald-600 hover:bg-emerald-700 text-white hover:scale-105 transition-transform"
                 >
                   {loading ? (
                     <>

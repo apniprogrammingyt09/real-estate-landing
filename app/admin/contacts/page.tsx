@@ -110,7 +110,7 @@ export default function ContactsPage() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      new: "bg-blue-100 text-blue-800",
+      new: "bg-emerald-100 text-emerald-800",
       contacted: "bg-yellow-100 text-yellow-800",
       resolved: "bg-green-100 text-green-800",
     }

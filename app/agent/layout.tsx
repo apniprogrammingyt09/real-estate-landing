@@ -35,9 +35,11 @@ function AgentLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Sidebar renders itself as <aside> on desktop and a top-bar+drawer on mobile */}
       <AgentNavigation />
-      <main className="flex-1 overflow-hidden">{children}</main>
+      {/* Page content — scrolls independently of the sidebar */}
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   )
 }

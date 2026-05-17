@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -17,12 +17,13 @@ import { uploadAgentAvatar } from "@/lib/blob-storage"
 import Image from "next/image"
 
 interface EditAgentPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function EditAgentPage({ params }: EditAgentPageProps) {
+export default function EditAgentPage(props: EditAgentPageProps) {
+  const params = use(props.params);
   const { user, isAuthenticated } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -87,8 +88,39 @@ export default function EditAgentPage({ params }: EditAgentPageProps) {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Validation
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file")
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Profile image size must be less than 2MB")
+      return
+    }
+
     try {
       setUploadingImage(true)
+
+      // Async dimension validation
+      const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+        const img = new window.Image()
+        img.src = URL.createObjectURL(file)
+        img.onload = () => {
+          resolve({ width: img.width, height: img.height })
+          URL.revokeObjectURL(img.src)
+        }
+        img.onerror = () => {
+          reject(new Error("Failed to load image"))
+          URL.revokeObjectURL(img.src)
+        }
+      })
+
+      if (dimensions.width < 200 || dimensions.height < 200) {
+        alert(`Profile image resolution must be at least 200x200px. (Current: ${dimensions.width}x${dimensions.height}px)`)
+        return
+      }
+
       const imageUrl = await uploadAgentAvatar(file)
       setFormData((prev) => ({ ...prev, avatar: imageUrl }))
     } catch (error) {
@@ -106,6 +138,7 @@ export default function EditAgentPage({ params }: EditAgentPageProps) {
     try {
       await updateAgent(params.id, {
         ...formData,
+        status: formData.status as "active" | "inactive",
         rating: Number.parseFloat(formData.rating),
       })
       router.push("/admin/agents")

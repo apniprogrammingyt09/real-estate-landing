@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -13,12 +13,13 @@ import { getAgentProperties } from "@/lib/agents-data"
 import { getAgent } from "@/lib/agents-data"
 
 interface AgentPropertiesPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function AgentPropertiesPage({ params }: AgentPropertiesPageProps) {
+export default function AgentPropertiesPage(props: AgentPropertiesPageProps) {
+  const params = use(props.params);
   const { user, isAuthenticated } = useAuth()
   const router = useRouter()
   const [agentProperties, setAgentProperties] = useState<Property[]>([])

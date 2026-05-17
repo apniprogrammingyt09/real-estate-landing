@@ -59,6 +59,9 @@ export default function LikeButton({
     }
 
     setIsLiked(!isLiked)
+
+    // Dispatch event to notify wishlist drawer in the header to update in real time
+    window.dispatchEvent(new Event("likes-updated"))
   }
 
   return (

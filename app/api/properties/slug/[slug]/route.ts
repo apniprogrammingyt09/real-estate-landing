@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 
-export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   try {
-    const { slug } = await params
+    const { slug } = params
     const properties = await db.getProperties({ status: "active" })
     const property = properties.find((p) => p.slug === slug)
 

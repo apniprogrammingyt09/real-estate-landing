@@ -17,6 +17,7 @@ const AdminNavigation = () => {
     { href: "/admin/bookings", icon: Calendar, label: "Bookings" },
     { href: "/admin/approve", icon: Clock, label: "Pending Approval" },
     { href: "/admin/diagnostics", icon: BarChart3, label: "Diagnostics" },
+    { href: "/admin/settings", icon: Plus, label: "Site Settings" },
     { href: "/add-property", icon: Plus, label: "Add Property" },
   ]
 

@@ -37,6 +37,7 @@ export interface Property {
 // Client-side data fetching functions
 export async function getProperties(filters?: {
   type?: string
+  priceType?: string
   status?: string
   featured?: boolean
   best?: boolean
@@ -44,6 +45,7 @@ export async function getProperties(filters?: {
   const params = new URLSearchParams()
 
   if (filters?.type) params.append("type", filters.type)
+  if (filters?.priceType) params.append("priceType", filters.priceType)
   if (filters?.status) params.append("status", filters.status)
   if (filters?.featured) params.append("featured", "true")
   if (filters?.best) params.append("best", "true")
@@ -65,15 +67,8 @@ export async function getProperty(id: number): Promise<Property | null> {
 
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
   try {
-    // Check if we're on the server side
-    if (typeof window === "undefined") {
-      // Server-side: use the database directly
-      const { db } = await import("./db")
-      return await db.getPropertyBySlug(slug)
-    }
-
     // Client-side: use fetch with absolute URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ""
     const response = await fetch(`${baseUrl}/api/properties/slug/${slug}`)
     if (!response.ok) {
       return null

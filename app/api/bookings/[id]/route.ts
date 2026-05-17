@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const id = params.id
     const updates = await request.json()
@@ -19,7 +20,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const id = params.id
     const updates = await request.json()

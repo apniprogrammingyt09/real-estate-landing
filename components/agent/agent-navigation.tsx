@@ -7,14 +7,18 @@ import { useAgentAuth } from "@/lib/agent-auth"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Building, Home, Users, Calendar, MessageSquare, BarChart3, Settings, LogOut, Menu, X } from "lucide-react"
+  Building,
+  Home,
+  Users,
+  Calendar,
+  MessageSquare,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/agent/dashboard", icon: Home },
@@ -25,7 +29,8 @@ const navigation = [
 ]
 
 export function AgentNavigation() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const { agent, logout } = useAgentAuth()
   const pathname = usePathname()
   const router = useRouter()
@@ -35,186 +40,169 @@ export function AgentNavigation() {
     router.push("/agent/login")
   }
 
+  const initials = agent?.name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+
+  /* ─── Sidebar content (shared between desktop & mobile) ─── */
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div
+        className={`flex items-center gap-3 px-4 py-5 border-b border-white/10 ${
+          collapsed ? "justify-center" : ""
+        }`}
+      >
+        <div className="flex-shrink-0 bg-white/20 p-2 rounded-xl">
+          <Building className="h-5 w-5 text-white" />
+        </div>
+        {!collapsed && (
+          <span className="text-white font-bold text-lg tracking-tight truncate">
+            Agent Portal
+          </span>
+        )}
+      </div>
+
+      {/* Nav links */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {navigation.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                isActive
+                  ? "bg-white text-primary shadow-md"
+                  : "text-white/70 hover:text-white hover:bg-white/10"
+              } ${collapsed ? "justify-center" : ""}`}
+            >
+              <item.icon
+                className={`flex-shrink-0 h-5 w-5 transition-transform duration-200 ${
+                  isActive ? "text-primary" : "text-white/70 group-hover:text-white"
+                }`}
+              />
+              {!collapsed && <span className="truncate">{item.name}</span>}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Bottom: profile + actions */}
+      <div className="border-t border-white/10 px-3 py-4 space-y-2">
+        {/* Profile settings */}
+        <Link
+          href="/agent/profile"
+          onClick={() => setMobileOpen(false)}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 group ${
+            collapsed ? "justify-center" : ""
+          }`}
+        >
+          <Settings className="flex-shrink-0 h-5 w-5" />
+          {!collapsed && <span>Profile Settings</span>}
+        </Link>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 group ${
+            collapsed ? "justify-center" : ""
+          }`}
+        >
+          <LogOut className="flex-shrink-0 h-5 w-5" />
+          {!collapsed && <span>Sign Out</span>}
+        </button>
+
+        {/* Agent info */}
+        {!collapsed && (
+          <div className="flex items-center gap-3 px-3 pt-3 border-t border-white/10 mt-2">
+            <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-white/20">
+              <AvatarImage src={agent?.avatar || "/placeholder.svg"} alt={agent?.name} />
+              <AvatarFallback className="bg-white/20 text-white text-xs">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-white text-sm font-medium truncate">{agent?.name}</p>
+              <p className="text-white/50 text-xs truncate">{agent?.email}</p>
+            </div>
+          </div>
+        )}
+
+        {collapsed && (
+          <div className="flex justify-center pt-2">
+            <Avatar className="h-8 w-8 ring-2 ring-white/20">
+              <AvatarImage src={agent?.avatar || "/placeholder.svg"} alt={agent?.name} />
+              <AvatarFallback className="bg-white/20 text-white text-xs">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo and Desktop Navigation */}
-          <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/agent/dashboard" className="flex items-center space-x-2">
-                <div className="bg-primary p-2 rounded-lg">
-                  <Building className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">Agent Portal</span>
-              </Link>
-            </div>
-          </div>
+    <>
+      {/* ── Desktop sidebar ── */}
+      <aside
+        className={`hidden md:flex flex-col relative flex-shrink-0 transition-all duration-300 ease-in-out
+          bg-gradient-to-b from-emerald-700 to-emerald-900 shadow-xl
+          ${collapsed ? "w-[72px]" : "w-64"}`}
+      >
+        <SidebarContent />
 
-          {/* User Menu */}
-          <div className="flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={agent?.avatar || "/placeholder.svg"} alt={agent?.name} />
-                    <AvatarFallback>
-                      {agent?.name
-                        ?.split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{agent?.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{agent?.email}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/agent/profile">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Profile Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-20 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md border border-gray-200 text-gray-500 hover:text-primary transition-colors"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          )}
+        </button>
+      </aside>
 
-            {/* Mobile menu button */}
-            <div className="lg:hidden ml-2">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-              >
-                {isMobileMenuOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
-              </button>
+      {/* ── Mobile top bar + drawer ── */}
+      <div className="md:hidden">
+        {/* Top bar */}
+        <div className="flex items-center justify-between h-14 px-4 bg-gradient-to-r from-emerald-700 to-emerald-900 shadow">
+          <Link href="/agent/dashboard" className="flex items-center gap-2">
+            <div className="bg-white/20 p-1.5 rounded-lg">
+              <Building className="h-5 w-5 text-white" />
             </div>
-          </div>
+            <span className="text-white font-bold text-base">Agent Portal</span>
+          </Link>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
+
+        {/* Mobile drawer overlay */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-50 flex">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setMobileOpen(false)}
+            />
+            {/* Drawer */}
+            <div className="relative w-64 h-full bg-gradient-to-b from-emerald-700 to-emerald-900 shadow-2xl flex flex-col">
+              <SidebarContent />
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Tablet Navigation */}
-      <div className="hidden md:block lg:hidden border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex flex-col items-center py-2 px-3 text-sm font-medium ${
-                    isActive
-                      ? "text-primary border-b-2 border-primary"
-                      : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  <item.icon className="h-5 w-5 mb-1" />
-                  <span>{item.name}</span>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Navigation */}
-      <div className="hidden lg:block border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isActive
-                      ? "border-primary text-primary"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden">
-          <div className="pt-2 pb-3 space-y-1">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                    isActive
-                      ? "bg-primary/10 border-primary text-primary"
-                      : "border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
-                  }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <div className="flex items-center">
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center px-4">
-              <div className="flex-shrink-0">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={agent?.avatar || "/placeholder.svg"} alt={agent?.name} />
-                  <AvatarFallback>
-                    {agent?.name
-                      ?.split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="ml-3">
-                <div className="text-base font-medium text-gray-800">{agent?.name}</div>
-                <div className="text-sm font-medium text-gray-500">{agent?.email}</div>
-              </div>
-            </div>
-            <div className="mt-3 space-y-1">
-              <Link
-                href="/agent/profile"
-                className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Profile Settings
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-              >
-                Sign out
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
+    </>
   )
 }

@@ -16,8 +16,8 @@ export default function LoadingAnimation({ status, message }: LoadingAnimationPr
     <div className="flex items-center space-x-2 text-sm">
       {status === "loading" && (
         <>
-          <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-          <span className="text-blue-600">{message}</span>
+          <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
+          <span className="text-emerald-600">{message}</span>
         </>
       )}
       {status === "success" && (
