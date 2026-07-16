@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24">
           <div className="lg:col-span-5 space-y-10">
             <h2 className="text-5xl md:text-7xl font-serif text-gray-900 dark:text-white leading-[1] tracking-tighter">
-              Let&apos;s find your <br/> perfect corner.
+              Let&apos;s find your <br /> perfect corner.
             </h2>
             <div className="flex flex-wrap gap-4">
               <Link href="/listings">
@@ -53,7 +53,7 @@ export default function Footer() {
                 </li>
               </ul>
             </div>
-            
+
             <div className="space-y-8">
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Discover</h4>
               <ul className="space-y-4">
@@ -95,7 +95,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-gray-100 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-          <p>© {currentYear} RealEstate Elite. Crafted with passion.</p>
+          <p>© {currentYear} Elite Group Elite. Crafted with passion.</p>
           <div className="flex gap-8">
             <Link href="/terms" className="hover:text-gray-900 dark:hover:text-white transition-colors">Terms</Link>
             <Link href="/privacy" className="hover:text-gray-900 dark:hover:text-white transition-colors">Privacy</Link>

@@ -14,7 +14,7 @@ export async function GET() {
         error: null as string | null,
       },
       blobStorage: {
-        configured: !!env.BLOB_READ_WRITE_TOKEN,
+        configured: !!env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
         accessible: false,
         error: null as string | null,
       },

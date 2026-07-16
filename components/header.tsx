@@ -21,23 +21,23 @@ export default function Header() {
   ]
 
   return (
-    <header className="fixed top-6 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-800 shadow-2xl rounded-full h-16 flex items-center justify-between px-8 w-full max-w-5xl pointer-events-auto">
+    <header className="sticky top-0 inset-x-0 z-50 flex justify-center bg-white border-b border-transparent shadow-none">
+      <div className="flex items-center justify-between px-8 py-4 w-full max-w-[1200px]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-          <div className="bg-gray-900 dark:bg-white p-1.5 rounded-full">
-            <Building className="h-5 w-5 text-white dark:text-gray-900" />
+          <div className="bg-[#09090b] p-1.5 rounded-[14px]">
+            <Building className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">RealEstate</span>
+          <span className="text-xl font-bold tracking-tight text-[#09090b]">Elite Group</span>
         </Link>
 
         {/* Navigation */}
-        <nav className="hidden md:flex items-center space-x-1">
+        <nav className="hidden md:flex items-center space-x-2">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="px-4 py-2 text-[14px] font-medium text-[#18181b] hover:bg-[#f4f4f5] transition-all rounded-full"
             >
               {item.name}
             </Link>
@@ -45,12 +45,13 @@ export default function Header() {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center space-x-3">
-          <WishlistDrawer />
-          
+        <div className="flex items-center space-x-4">
+          <Link href="/agent/login" className="hidden md:flex text-[14px] font-medium text-[#18181b] hover:text-[#09090b]">
+            Log in
+          </Link>
+
           <Link href="/add-property" className="hidden md:flex">
-            <Button size="sm" variant="outline" className="rounded-full px-4 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button size="sm" className="rounded-full px-6">
               List Property
             </Button>
           </Link>

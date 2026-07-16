@@ -73,30 +73,30 @@ export default function FAQPage() {
     .filter((category) => category.faqs.length > 0)
 
   return (
-    <div className="flex flex-col min-h-screen bg-background font-sans selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="flex flex-col min-h-screen bg-background font-sans selection:bg-[#ececee] selection:text-emerald-900">
       <Header />
 
       {/* Hero Section */}
-      <section className="relative pt-48 pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-amber-50 dark:bg-amber-950/10 -z-10"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-200/50 dark:bg-amber-500/10 rounded-full blur-3xl -z-10"></div>
+      <section className="relative pt-[60px] pb-[60px] overflow-hidden">
+        <div className="absolute inset-0 bg-[#ececee] dark:bg-[#ececee] -z-10"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#ececee] dark:bg-[#ececee] rounded-full blur-3xl -z-10"></div>
         
         <div className="container-custom relative">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-[10px] uppercase tracking-[0.2em] mb-6">
+            <div className="flex items-center justify-center gap-2 text-[#09090b] dark:text-[#09090b] font-bold text-[10px] uppercase tracking-[0.2em] mb-6">
               <HelpCircle className="w-4 h-4" />
               Information Hub
             </div>
-            <h1 className="text-6xl md:text-8xl font-serif text-gray-900 dark:text-white leading-[0.9] tracking-tighter mb-12">
+            <h1 className="text-6xl md:text-8xl font-sans text-gray-900 dark:text-white leading-[0.9] tracking-tighter mb-12">
               Common questions, <br/> expert answers.
             </h1>
             
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto relative group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-amber-500 transition-colors" />
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#09090b] transition-colors" />
               <Input
                 placeholder="Search for a topic..."
-                className="h-20 pl-16 pr-8 rounded-[2rem] bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-2xl focus-visible:ring-amber-500/20 text-lg"
+                className="h-20 pl-16 pr-8 rounded-[2rem] bg-white dark:bg-gray-900 border-[#ececee] dark:border-gray-800 border border-[#ececee] shadow-none focus-visible:ring-amber-500/20 text-lg"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -106,39 +106,39 @@ export default function FAQPage() {
       </section>
 
       {/* FAQ Content */}
-      <section className="py-24">
+      <section className="py-[60px]">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             {/* Sidebar / Quick Links */}
             <div className="lg:col-span-4 space-y-12">
-              <div className="p-10 bg-gray-50 dark:bg-gray-900 rounded-[3rem] border border-gray-100 dark:border-gray-800 space-y-8">
-                <h3 className="text-xl font-serif tracking-tight">Need direct help?</h3>
+              <div className="p-10 bg-[#f4f4f5] dark:bg-gray-900 rounded-[36px] border border-[#ececee] dark:border-gray-800 space-y-8">
+                <h3 className="text-xl font-sans tracking-tight">Need direct help?</h3>
                 <div className="space-y-4">
-                   <Link href="/contact" className="flex items-center justify-between p-6 bg-white dark:bg-gray-800 rounded-2xl hover:border-amber-500/30 border border-transparent transition-all group">
+                   <Link href="/contact" className="flex items-center justify-between p-6 bg-white dark:bg-gray-800 rounded-[14px] hover:border-amber-500/30 border border-transparent transition-all group">
                     <div className="flex items-center gap-4">
-                      <Phone className="w-5 h-5 text-amber-500" />
+                      <Phone className="w-5 h-5 text-[#09090b]" />
                       <span className="font-bold text-sm">Call Support</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-amber-500 transition-colors" />
+                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#09090b] transition-colors" />
                   </Link>
-                   <Link href="/contact" className="flex items-center justify-between p-6 bg-white dark:bg-gray-800 rounded-2xl hover:border-amber-500/30 border border-transparent transition-all group">
+                   <Link href="/contact" className="flex items-center justify-between p-6 bg-white dark:bg-gray-800 rounded-[14px] hover:border-amber-500/30 border border-transparent transition-all group">
                     <div className="flex items-center gap-4">
-                      <Mail className="w-5 h-5 text-amber-500" />
+                      <Mail className="w-5 h-5 text-[#09090b]" />
                       <span className="font-bold text-sm">Email Inquiry</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-amber-500 transition-colors" />
+                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#09090b] transition-colors" />
                   </Link>
                 </div>
               </div>
 
               {/* Stats Card */}
-              <div className="p-10 bg-amber-500 rounded-[3rem] text-white space-y-4">
+              <div className="p-10 bg-[#ececee] rounded-[36px] text-white space-y-4">
                 <Sparkles className="w-10 h-10" />
-                <h3 className="text-3xl font-serif tracking-tight leading-tight">Personalized <br/> Consulting</h3>
+                <h3 className="text-3xl font-sans tracking-tight leading-tight">Personalized <br/> Consulting</h3>
                 <p className="text-white/80 text-sm leading-relaxed">
                   Our elite agents are available for private consultations to discuss your unique investment goals.
                 </p>
-                <Button className="w-full h-14 rounded-full bg-white text-amber-600 font-bold text-[10px] uppercase tracking-widest hover:bg-white/90">
+                <Button className="w-full h-14 rounded-full bg-white text-[#09090b] font-bold text-[10px] uppercase tracking-widest hover:bg-white/90">
                   Book a session
                 </Button>
               </div>
@@ -147,8 +147,8 @@ export default function FAQPage() {
             {/* Main FAQ List */}
             <div className="lg:col-span-8">
               {filteredFAQs.length === 0 ? (
-                <div className="py-24 text-center space-y-6">
-                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-900 rounded-3xl flex items-center justify-center mx-auto text-gray-300">
+                <div className="py-[60px] text-center space-y-6">
+                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-900 rounded-[36px] flex items-center justify-center mx-auto text-gray-300">
                     <Search className="w-10 h-10" />
                   </div>
                   <h3 className="text-2xl font-bold">No results found</h3>
@@ -159,8 +159,8 @@ export default function FAQPage() {
                   {filteredFAQs.map((category, categoryIndex) => (
                     <div key={categoryIndex} className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                       <div className="flex items-center gap-4">
-                        <div className="h-10 w-1.5 bg-amber-500 rounded-full"></div>
-                        <h2 className="text-3xl font-serif tracking-tight">{category.title}</h2>
+                        <div className="h-10 w-1.5 bg-[#ececee] rounded-full"></div>
+                        <h2 className="text-3xl font-sans tracking-tight">{category.title}</h2>
                       </div>
                       
                       <div className="space-y-4">
@@ -174,8 +174,8 @@ export default function FAQPage() {
                               className={cn(
                                 "group rounded-[2rem] border transition-all duration-500 overflow-hidden",
                                 isOpen 
-                                  ? "bg-white dark:bg-gray-900 border-amber-500/30 shadow-2xl shadow-amber-500/5" 
-                                  : "bg-gray-50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-800 hover:border-amber-500/20"
+                                  ? "bg-white dark:bg-gray-900 border-amber-500/30 border border-[#ececee] shadow-none shadow-amber-500/5" 
+                                  : "bg-[#f4f4f5] dark:bg-gray-900/50 border-[#ececee] dark:border-gray-800 hover:border-amber-500/20"
                               )}
                             >
                               <button
@@ -184,13 +184,13 @@ export default function FAQPage() {
                               >
                                 <h3 className={cn(
                                   "text-lg font-bold transition-colors duration-300",
-                                  isOpen ? "text-amber-600" : "text-gray-900 dark:text-white"
+                                  isOpen ? "text-[#09090b]" : "text-gray-900 dark:text-white"
                                 )}>
                                   {faq.question}
                                 </h3>
                                 <div className={cn(
                                   "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500",
-                                  isOpen ? "bg-amber-500 text-white rotate-0" : "bg-white dark:bg-gray-800 text-gray-400 rotate-90"
+                                  isOpen ? "bg-[#ececee] text-white rotate-0" : "bg-white dark:bg-gray-800 text-gray-400 rotate-90"
                                 )}>
                                   {isOpen ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                                 </div>
@@ -222,11 +222,11 @@ export default function FAQPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 border-t border-gray-100 dark:border-gray-800">
+      <section className="py-[60px] border-t border-[#ececee] dark:border-gray-800">
         <div className="container-custom">
-          <div className="bg-gray-900 rounded-[4rem] p-16 md:p-24 text-center space-y-10 relative overflow-hidden">
+          <div className="bg-gray-900 rounded-[36px] p-16 md:p-24 text-center space-y-10 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent"></div>
-            <h2 className="text-4xl md:text-7xl font-serif text-white tracking-tighter max-w-4xl mx-auto leading-[0.9]">
+            <h2 className="text-4xl md:text-7xl font-sans text-white tracking-tighter max-w-4xl mx-auto leading-[0.9]">
               Still have questions about your future home?
             </h2>
             <div className="flex flex-wrap justify-center gap-4 relative z-10">

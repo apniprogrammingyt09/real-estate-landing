@@ -2,6 +2,16 @@ import { ObjectId } from "mongodb"
 import { getDatabase } from "./mongodb"
 import bcrypt from "bcryptjs"
 
+// Helper to optimize existing Cloudinary URLs on the fly
+function optimizeCloudinaryUrls(images: string[] = []): string[] {
+  return images.map((url) => {
+    if (url.includes("res.cloudinary.com") && url.includes("/upload/") && !url.includes("q_auto")) {
+      return url.replace("/upload/", "/upload/c_scale,w_800/q_auto/")
+    }
+    return url
+  })
+}
+
 // Database schema interfaces
 export interface Admin {
   _id?: ObjectId
@@ -177,13 +187,13 @@ class MongoDatabase {
       const db = await getDatabase()
 
       // Create default admin user if none exists
-      const adminExists = await db.collection("admins").findOne({ email: "admin@realestate.com" })
+      const adminExists = await db.collection("admins").findOne({ email: "admin@Elite Group.com" })
       if (!adminExists) {
         const hashedPassword = await bcrypt.hash("admin123", 12)
         const defaultAdmin: Admin = {
           id: "admin-1",
           name: "System Administrator",
-          email: "admin@realestate.com",
+          email: "admin@Elite Group.com",
           password: hashedPassword,
           role: "admin",
           phone: "+1234567890",
@@ -553,7 +563,11 @@ class MongoDatabase {
       if (filters?.priceType) query.priceType = filters.priceType
 
       const properties = await db.collection("properties").find(query).sort({ createdAt: -1 }).toArray()
-      return properties.map((property) => ({ ...property, _id: undefined })) as Property[]
+      return properties.map((property) => ({
+        ...property,
+        _id: undefined,
+        images: optimizeCloudinaryUrls(property.images || []),
+      })) as Property[]
     } catch (error) {
       console.error("Error fetching properties:", error)
       return []
@@ -565,7 +579,12 @@ class MongoDatabase {
       await this.ensureInitialized()
       const db = await getDatabase()
       const property = await db.collection("properties").findOne({ id })
-      return property ? ({ ...property, _id: undefined } as Property) : null
+      if (!property) return null
+      return {
+        ...property,
+        _id: undefined,
+        images: optimizeCloudinaryUrls(property.images || []),
+      } as Property
     } catch (error) {
       console.error("Error fetching property:", error)
       return null
@@ -577,7 +596,12 @@ class MongoDatabase {
       await this.ensureInitialized()
       const db = await getDatabase()
       const property = await db.collection("properties").findOne({ slug })
-      return property ? ({ ...property, _id: undefined } as Property) : null
+      if (!property) return null
+      return {
+        ...property,
+        _id: undefined,
+        images: optimizeCloudinaryUrls(property.images || []),
+      } as Property
     } catch (error) {
       console.error("Error fetching property by slug:", error)
       return null
@@ -1017,7 +1041,7 @@ class MongoDatabase {
       await this.ensureInitialized()
       const db = await getDatabase()
       let settings = await db.collection("settings").findOne({ id: "global" })
-      
+
       if (!settings) {
         // Create default settings if they don't exist
         const defaultSettings: SiteSettings = {
@@ -1057,7 +1081,7 @@ class MongoDatabase {
         await db.collection("settings").insertOne(defaultSettings)
         settings = defaultSettings as any
       }
-      
+
       return { ...settings, _id: undefined } as SiteSettings
     } catch (error) {
       console.error("Error fetching settings:", error)
@@ -1077,18 +1101,18 @@ class MongoDatabase {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      
+
       const updatedSettings = {
         ...updates,
         updatedAt: new Date().toISOString()
       }
-      
+
       const result = await db.collection("settings").findOneAndUpdate(
         { id: "global" },
         { $set: updatedSettings },
         { returnDocument: "after", upsert: true }
       )
-      
+
       return result ? { ...result, _id: undefined } as SiteSettings : null
     } catch (error) {
       console.error("Error updating settings:", error)

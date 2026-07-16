@@ -1,26 +1,21 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Playfair_Display } from "next/font/google"
+import { DM_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/lib/auth"
 import ScrollToTop from "@/components/scroll-to-top"
 
-const inter = Inter({ 
+const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
-})
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-serif",
+  weight: ["400", "500", "600", "700"],
 })
 
 export const metadata: Metadata = {
   title: "Premium Real Estate - Find Your Dream Home",
-  description: "Discover luxury properties and find your perfect home with our premium real estate platform.",
-    generator: 'v0.dev'
+  description: "Discover luxury properties and find your perfect home with our premium real estate platform."
 }
 
 export default function RootLayout({
@@ -30,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
+      <body className={`${dmSans.variable} font-sans antialiased bg-[#f4f4f5]`}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
             <ScrollToTop />

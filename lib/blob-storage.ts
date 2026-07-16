@@ -1,54 +1,53 @@
-export async function uploadAgentAvatar(file: File): Promise<string> {
-  try {
-    const formData = new FormData()
-    formData.append("file", file)
-
-    const response = await fetch("/api/upload/agent-avatar", {
-      method: "POST",
-      body: formData,
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      console.error("Upload API error:", error)
-      throw new Error(error.error || `Upload failed with status: ${response.status}`)
-    }
-
-    const { url } = await response.json()
-    if (!url) {
-      throw new Error("No URL returned from upload service")
-    }
-    
-    return url
-  } catch (error) {
-    console.error("Error uploading agent avatar:", error)
-    if (error instanceof Error) {
-      throw error
-    }
-    throw new Error("Failed to upload file")
-  }
-}
-
-// Keep the existing BlobStorageService for backward compatibility
-import { put, del, list } from "@vercel/blob"
+import { v2 as cloudinary } from "cloudinary"
 import { env } from "./env"
 
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: env.CLOUDINARY_API_KEY,
+  api_secret: env.CLOUDINARY_API_SECRET,
+  secure: true,
+})
+
+
+
+// Keep the existing BlobStorageService for backward compatibility
 export class BlobStorageService {
-  private token: string
-
-  constructor() {
-    this.token = env.BLOB_READ_WRITE_TOKEN || ""
-  }
-
   async uploadImage(file: File, pathname: string): Promise<string> {
     try {
-      const blob = await put(pathname, file, {
-        access: "public",
-        token: this.token,
+      const arrayBuffer = await file.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      
+      const folder = pathname.includes('/') ? pathname.substring(0, pathname.lastIndexOf('/')) : ''
+      const public_id = pathname.includes('/') ? pathname.substring(pathname.lastIndexOf('/') + 1) : pathname
+      
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { 
+            folder, 
+            public_id: public_id.replace(/\.[^/.]+$/, "") // Remove extension
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Cloudinary upload error:", error)
+              reject(new Error("Failed to upload image to Cloudinary"))
+            } else {
+              // Generate the URL with on-the-fly transformations
+              const optimizedUrl = cloudinary.url(result!.public_id, {
+                secure: true,
+                transformation: [
+                  { width: 800, crop: "scale" },
+                  { quality: "auto" }
+                ]
+              })
+              resolve(optimizedUrl)
+            }
+          }
+        )
+        uploadStream.end(buffer)
       })
-      return blob.url
     } catch (error) {
-      console.error("Error uploading to blob storage:", error)
+      console.error("Error preparing to upload to cloudinary:", error)
       throw new Error("Failed to upload image")
     }
   }
@@ -56,7 +55,7 @@ export class BlobStorageService {
   async uploadMultipleImages(files: File[], basePath = "properties"): Promise<string[]> {
     try {
       const uploadPromises = files.map((file, index) => {
-        const pathname = `${basePath}/${Date.now()}-${index}-${file.name}`
+        const pathname = `${basePath}/${Date.now()}-${index}-${file.name.replace(/\\s+/g, "-")}`
         return this.uploadImage(file, pathname)
       })
 
@@ -69,22 +68,43 @@ export class BlobStorageService {
 
   async deleteImage(url: string): Promise<void> {
     try {
-      await del(url, { token: this.token })
+      // Extract public_id from Cloudinary URL
+      // Format: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<folder>/<public_id>.<ext>
+      const urlParts = url.split('/')
+      const uploadIndex = urlParts.findIndex(part => part === 'upload')
+      if (uploadIndex !== -1) {
+        // Skip 'v' version string if present
+        let startIndex = uploadIndex + 1
+        if (urlParts[startIndex].startsWith('v') && !isNaN(parseInt(urlParts[startIndex].substring(1)))) {
+          startIndex++
+        }
+        const publicIdWithExt = urlParts.slice(startIndex).join('/')
+        const publicId = publicIdWithExt.replace(/\.[^/.]+$/, "") // Remove extension
+        
+        await cloudinary.uploader.destroy(publicId)
+      }
     } catch (error) {
-      console.error("Error deleting from blob storage:", error)
+      console.error("Error deleting from Cloudinary:", error)
       throw new Error("Failed to delete image")
     }
   }
 
   async listImages(prefix?: string) {
     try {
-      const { blobs } = await list({
-        prefix,
-        token: this.token,
-      })
-      return blobs
+      const result = await cloudinary.search
+        .expression(prefix ? `folder:${prefix}*` : "")
+        .sort_by('public_id', 'desc')
+        .max_results(30)
+        .execute()
+        
+      return result.resources.map((res: any) => ({
+        url: res.secure_url,
+        pathname: res.public_id,
+        size: res.bytes,
+        uploadedAt: new Date(res.created_at)
+      }))
     } catch (error) {
-      console.error("Error listing blob storage files:", error)
+      console.error("Error listing Cloudinary files:", error)
       throw new Error("Failed to list images")
     }
   }

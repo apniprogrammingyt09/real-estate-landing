@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative gradient-primary text-white py-16">
+      <section className="relative gradient-primary text-white py-[60px]">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
                     </ul>
                   </div>
 
-                  <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-lg">
+                  <div className="bg-[#f4f4f5] dark:bg-[#09090b]/20 p-6 rounded-lg">
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">We do not:</h4>
                     <ul className="list-disc list-inside space-y-1 ml-4">
                       <li>Sell your personal information to third parties</li>
@@ -259,7 +259,7 @@ export default function PrivacyPage() {
               </div>
 
               {/* Contact Information */}
-              <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg">
+              <div className="bg-[#f4f4f5] dark:bg-gray-800 p-8 rounded-lg">
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
                     <Mail className="h-6 w-6 text-primary" />
@@ -272,7 +272,7 @@ export default function PrivacyPage() {
                   </p>
                   <div className="space-y-2">
                     <p>
-                      <strong>Email:</strong> privacy@realestate.com
+                      <strong>Email:</strong> privacy@Elite Group.com
                     </p>
                     <p>
                       <strong>Phone:</strong> +1 (555) 123-4567

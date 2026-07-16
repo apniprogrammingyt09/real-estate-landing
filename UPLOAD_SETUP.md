@@ -13,11 +13,13 @@ The agent profile photo upload functionality uses Vercel Blob Storage. Here's ho
 ## 2. Set Up Environment Variables
 
 1. Copy the `.env.example` file to `.env.local`:
+
    ```bash
    cp .env.example .env.local
    ```
 
 2. Replace the placeholder values in `.env.local`:
+
    ```env
    # Replace with your actual MongoDB connection string
    MONGODB_URI=mongodb://localhost:27017/real-estate
@@ -28,7 +30,7 @@ The agent profile photo upload functionality uses Vercel Blob Storage. Here's ho
    
    # Your app URL
    NEXT_PUBLIC_BASE_URL=http://localhost:3000
-   ADMIN_EMAIL=admin@realestate.com
+   ADMIN_EMAIL=admin@Elite Group.com
    ```
 
 ## 3. Alternative Solutions
@@ -36,10 +38,13 @@ The agent profile photo upload functionality uses Vercel Blob Storage. Here's ho
 If you don't want to use Vercel Blob Storage, you can:
 
 ### Option A: Use Local File Storage (Development Only)
+
 You can modify the upload endpoint to save files locally in the `public` folder.
 
 ### Option B: Use Other Cloud Storage
+
 You can replace the Vercel Blob integration with:
+
 - AWS S3
 - Google Cloud Storage
 - Cloudinary
@@ -47,7 +52,7 @@ You can replace the Vercel Blob integration with:
 
 ## 4. Troubleshooting
 
-### Common Issues:
+### Common Issues
 
 1. **"File upload is not configured" error**
    - Make sure `BLOB_READ_WRITE_TOKEN` is set in your `.env.local` file
@@ -77,6 +82,7 @@ You can replace the Vercel Blob integration with:
 ## 6. Current Implementation
 
 The upload system:
+
 - Validates file type (images only)
 - Validates file size (max 2MB)
 - Generates unique filenames to prevent conflicts

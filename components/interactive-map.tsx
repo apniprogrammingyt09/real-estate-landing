@@ -15,24 +15,24 @@ interface InteractiveMapProps {
   initialLng?: number
 }
 
-// A free minimalist raster tile style using OpenStreetMap
+// A free minimalist raster tile style using CartoDB Voyager (Premium look, similar to Google Maps)
 const mapStyle = {
   version: 8,
   sources: {
-    osm: {
+    carto: {
       type: "raster",
-      tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"],
       tileSize: 256,
-      attribution: "&copy; OpenStreetMap Contributors",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     },
   },
   layers: [
     {
-      id: "osm",
+      id: "carto",
       type: "raster",
-      source: "osm",
+      source: "carto",
       minzoom: 0,
-      maxzoom: 19,
+      maxzoom: 20,
     },
   ],
 } as const

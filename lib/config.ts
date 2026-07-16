@@ -9,13 +9,13 @@ export const config = {
     name: process.env.MONGODB_DB!,
   },
   storage: {
-    token: process.env.BLOB_READ_WRITE_TOKEN!,
+    token: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!,
   },
   admin: {
     email: process.env.ADMIN_EMAIL,
   },
   features: {
-    enableImageUpload: !!process.env.BLOB_READ_WRITE_TOKEN,
+    enableImageUpload: !!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     enableDatabase: !!process.env.MONGODB_URI,
   },
 } as const

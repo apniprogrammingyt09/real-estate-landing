@@ -1,13 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import { Menu, X, Home, Building, Users, BarChart3, Plus, Clock, MessageSquare, Calendar } from "lucide-react"
+import { Menu, X, Home, Building, Users, BarChart3, Plus, Clock, MessageSquare, Calendar, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 
 const AdminNavigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { logout } = useAuth()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    logout()
+    router.push("/admin/login")
+  }
 
   const navigationItems = [
     { href: "/admin", icon: Home, label: "Dashboard" },
@@ -69,6 +78,14 @@ const AdminNavigation = () => {
                 <span className="font-medium">{item.label}</span>
               </Link>
             ))}
+            
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors mt-4"
+            >
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              <span className="font-medium">Sign Out</span>
+            </button>
           </nav>
         </div>
       </div>
@@ -89,6 +106,14 @@ const AdminNavigation = () => {
                 <span className="font-medium">{item.label}</span>
               </Link>
             ))}
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors mt-4"
+            >
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              <span className="font-medium">Sign Out</span>
+            </button>
           </nav>
         </div>
       </div>

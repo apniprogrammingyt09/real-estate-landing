@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Save, User, Mail, Phone, Building, Upload, Star } from "lucide-react"
 import Link from "next/link"
 import { getAgent, updateAgent } from "@/lib/agents-data"
-import { uploadAgentAvatar } from "@/lib/blob-storage"
+import { uploadAgentAvatar } from "@/lib/client-upload"
 import Image from "next/image"
 
 interface EditAgentPageProps {

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { put } from "@vercel/blob"
+import { blobStorage } from "@/lib/blob-storage"
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,14 +28,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Only image files are allowed" }, { status: 400 })
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, file, {
-      access: "public",
-      contentType: fileType,
-    })
+    // Upload to Cloudinary via our service
+    const url = await blobStorage.uploadImage(file as any, filename)
 
     // Return the URL of the uploaded file
-    return NextResponse.json({ url: blob.url })
+    return NextResponse.json({ url })
   } catch (error) {
     console.error("Upload error:", error)
     return NextResponse.json(

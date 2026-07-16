@@ -9,7 +9,7 @@ export default function AgentLoading() {
       <Header />
 
       {/* Agent Hero Section Skeleton */}
-      <section className="relative py-24 md:py-32 overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800/80">
+      <section className="relative py-[60px] md:py-[60px] overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800/80">
         <div className="container-custom relative">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -63,7 +63,7 @@ export default function AgentLoading() {
       </section>
 
       {/* Bio Details Skeleton */}
-      <section className="py-20 bg-background">
+      <section className="py-[60px] bg-background">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto space-y-6">
             <Skeleton className="h-8 w-40 rounded-lg" />
@@ -77,7 +77,7 @@ export default function AgentLoading() {
       </section>
 
       {/* Properties Listing Skeleton */}
-      <section className="py-20 bg-background border-t border-gray-100 dark:border-gray-800/80">
+      <section className="py-[60px] bg-background border-t border-gray-100 dark:border-gray-800/80">
         <div className="container-custom">
           <div className="flex justify-between items-center mb-12">
             <Skeleton className="h-8 w-56 rounded-xl" />

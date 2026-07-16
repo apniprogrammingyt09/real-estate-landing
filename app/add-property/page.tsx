@@ -367,21 +367,21 @@ export default function AddPropertyPage() {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
-        <div className="flex-1 flex items-center justify-center px-4 py-24 md:py-32">
-          <Card className="w-full max-w-md border-gray-100 dark:border-gray-800 rounded-[2.5rem] shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 animate-in fade-in zoom-in-95 duration-500">
+        <div className="flex-1 flex items-center justify-center px-4 py-[60px] md:py-[60px]">
+          <Card className="w-full max-w-md border-[#ececee] dark:border-gray-800 rounded-[36px] border border-[#ececee] shadow-none shadow-emerald-500/5 dark:shadow-none overflow-hidden bg-[#f4f4f5]/50 dark:bg-gray-900/50 animate-in fade-in zoom-in-95 duration-500">
             <CardContent className="pt-12 pb-12 px-8">
               <div className="text-center space-y-6">
-                <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-950/30 rounded-full flex items-center justify-center mx-auto animate-bounce">
-                  <CheckCircle className="h-10 w-10 text-emerald-500" />
+                <div className="w-20 h-20 bg-[#f4f4f5] dark:bg-emerald-950/30 rounded-full flex items-center justify-center mx-auto animate-bounce">
+                  <CheckCircle className="h-10 w-10 text-[#09090b]" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-serif tracking-tight text-gray-900 dark:text-white">Property Submitted!</h2>
+                  <h2 className="text-3xl font-sans tracking-tight text-gray-900 dark:text-white">Property Submitted!</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-sans">
                     Your property listing has been successfully sent for review. Our administration team will verify the details and activate it shortly.
                   </p>
                 </div>
                 <div className="pt-4 flex flex-col items-center gap-2">
-                  <Loader2 className="h-5 w-5 text-emerald-500 animate-spin" />
+                  <Loader2 className="h-5 w-5 text-[#09090b] animate-spin" />
                   <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">Redirecting to listings page...</p>
                 </div>
               </div>
@@ -397,8 +397,8 @@ export default function AddPropertyPage() {
     switch (currentStep) {
       case 1:
         return (
-          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
-            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
+          <Card className="rounded-[2rem] border-[#ececee] dark:border-gray-800 border border-[#ececee] shadow-none shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-[#f4f4f5]/50 dark:bg-gray-800/50 border-b border-[#ececee] dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <Home className="h-5 w-5" />
                 <span>Property Details</span>
@@ -538,8 +538,8 @@ export default function AddPropertyPage() {
 
       case 2:
         return (
-          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
-            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
+          <Card className="rounded-[2rem] border-[#ececee] dark:border-gray-800 border border-[#ececee] shadow-none shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-[#f4f4f5]/50 dark:bg-gray-800/50 border-b border-[#ececee] dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <MapPin className="h-5 w-5" />
                 <span>Location & Map</span>
@@ -602,8 +602,8 @@ export default function AddPropertyPage() {
 
       case 3:
         return (
-          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
-            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
+          <Card className="rounded-[2rem] border-[#ececee] dark:border-gray-800 border border-[#ececee] shadow-none shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-[#f4f4f5]/50 dark:bg-gray-800/50 border-b border-[#ececee] dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <ImageIcon className="h-5 w-5" />
                 <span>Property Images</span>
@@ -672,8 +672,8 @@ export default function AddPropertyPage() {
 
       case 4:
         return (
-          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
-            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
+          <Card className="rounded-[2rem] border-[#ececee] dark:border-gray-800 border border-[#ececee] shadow-none shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-[#f4f4f5]/50 dark:bg-gray-800/50 border-b border-[#ececee] dark:border-gray-800 px-8 py-8">
               <CardTitle>Property Features</CardTitle>
               <CardDescription>Select all features that apply to your property</CardDescription>
             </CardHeader>
@@ -698,8 +698,8 @@ export default function AddPropertyPage() {
 
       case 5:
         return (
-          <Card className="rounded-[2rem] border-gray-100 dark:border-gray-800 shadow-2xl shadow-emerald-500/5 dark:shadow-none overflow-hidden">
-            <CardHeader className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 px-8 py-8">
+          <Card className="rounded-[2rem] border-[#ececee] dark:border-gray-800 border border-[#ececee] shadow-none shadow-emerald-500/5 dark:shadow-none overflow-hidden">
+            <CardHeader className="bg-[#f4f4f5]/50 dark:bg-gray-800/50 border-b border-[#ececee] dark:border-gray-800 px-8 py-8">
               <CardTitle className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span>Contact Information</span>
@@ -757,14 +757,14 @@ export default function AddPropertyPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative py-32 md:py-40 overflow-hidden border-b border-gray-100 dark:border-gray-800">
-        <div className="absolute inset-0 bg-emerald-50 dark:bg-emerald-950/20 -z-10"></div>
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/4"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/4"></div>
+      <section className="relative py-[60px] md:py-[60px] overflow-hidden border-b border-[#ececee] dark:border-gray-800">
+        <div className="absolute inset-0 bg-[#f4f4f5] dark:bg-emerald-950/20 -z-10"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-transparent dark:bg-[#f4f4f5]0/10 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-transparent dark:bg-[#f4f4f5]0/10 rounded-full blur-[100px] -z-10 -translate-x-1/3 translate-y-1/4"></div>
         
         <div className="container-custom relative">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-5xl md:text-7xl font-serif text-gray-900 dark:text-white tracking-tight mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-sans text-gray-900 dark:text-white tracking-tight mb-6 leading-tight">
               List your property.
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400">
@@ -775,7 +775,7 @@ export default function AddPropertyPage() {
       </section>
 
       {/* Form Section */}
-      <section className="py-24 bg-background">
+      <section className="py-[60px] bg-background">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto">
             {/* Progress Bar */}
@@ -788,7 +788,7 @@ export default function AddPropertyPage() {
               </div>
               <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
                 <div
-                  className="bg-emerald-500 h-full rounded-full transition-all duration-500 ease-out"
+                  className="bg-[#f4f4f5]0 h-full rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                 ></div>
               </div>
@@ -804,7 +804,7 @@ export default function AddPropertyPage() {
             <div className="mb-8">{renderStep()}</div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between pt-8 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex justify-between pt-8 border-t border-[#ececee] dark:border-gray-800">
               <Button
                 type="button"
                 variant="outline"
@@ -826,7 +826,7 @@ export default function AddPropertyPage() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="flex items-center rounded-full px-8 h-12 bg-emerald-600 hover:bg-emerald-700 text-white hover:scale-105 transition-transform"
+                  className="flex items-center rounded-full px-8 h-12 bg-[#09090b] hover:bg-[#09090b] text-white hover:scale-105 transition-transform"
                 >
                   {loading ? (
                     <>

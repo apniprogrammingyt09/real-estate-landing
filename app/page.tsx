@@ -107,36 +107,36 @@ export default function HomePage() {
       heading: "Best Sellers",
       subheading: "Top Rated Items",
       description: "India's most-loved properties — chosen by 12,000+ happy homeowners. Handpicked for quality, value, and lifestyle.",
-      color: "text-emerald-500"
+      color: "text-gray-900 dark:text-white"
     },
     sale: {
       heading: "Properties for Sale",
       subheading: "Permanent Homes",
       description: "Discover your dream home from our latest listings. From cozy apartments to luxury villas, find where you belong.",
-      color: "text-emerald-500"
+      color: "text-gray-900 dark:text-white"
     },
     rent: {
       heading: "Properties for Rent",
       subheading: "Flexible Stays",
       description: "Looking for a temporary stay? Browse our curated list of rental properties in prime locations with flexible terms.",
-      color: "text-orange-500"
+      color: "text-gray-900 dark:text-white"
     },
     premium: {
       heading: "Premium Collection",
       subheading: "Luxury Living",
       description: "Exclusive luxury properties for the most discerning buyers. Experience the finest in real estate with exceptional amenities.",
-      color: "text-amber-500"
+      color: "text-gray-900 dark:text-white"
     }
   }
 
   const currentContent = showcaseContent[activeTab]
 
   return (
-    <div className="min-h-screen bg-background text-gray-900 dark:text-white selection:bg-emerald-100 selection:text-emerald-900 font-sans">
+    <div className="min-h-screen bg-background text-gray-900 dark:text-white selection:bg-gray-200 selection:text-gray-900 font-sans">
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center pt-20">
+      <section className="relative min-h-[90vh] flex items-center pt-[60px]">
         <div className="absolute inset-0 z-0">
           {settings?.heroBackground?.type === "video" ? (
             <video
@@ -160,7 +160,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white dark:to-[#0a0a0a]"></div>
         </div>
 
-        <div className="container-custom relative z-10 py-20">
+        <div className="container-custom relative z-10 py-[60px]">
           <div className="max-w-4xl space-y-10">
             <div className="flex flex-wrap gap-3">
               {["BUILD", "FUTURE", "PROPERTY"].map((tag) => (
@@ -244,7 +244,7 @@ export default function HomePage() {
       </section>
 
       {/* Asymmetric Section (Dynamic Auto-Slider) */}
-      <section className="py-24 bg-[#f8f8f8] dark:bg-[#0a0a0a]">
+      <section className="py-[60px] bg-[#f8f8f8] dark:bg-[#0a0a0a]">
         <div className="container-custom">
           {premiumProperties.length > 0 ? (
             <div className="animate-in fade-in duration-700">
@@ -289,7 +289,7 @@ export default function HomePage() {
                         <div 
                           key={i} 
                           onClick={() => setActiveThumbIndex(i)}
-                          className={`w-10 h-10 rounded-full border-2 ${activeThumbIndex === i ? 'border-emerald-500 scale-110' : 'border-transparent opacity-60 hover:opacity-100'} overflow-hidden cursor-pointer transition-all duration-300`}
+                          className={`w-10 h-10 rounded-full border-2 ${activeThumbIndex === i ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent opacity-60 hover:opacity-100'} overflow-hidden cursor-pointer transition-all duration-300`}
                         >
                           <img src={img} className="w-full h-full object-cover" alt="Property thumbnail" />
                         </div>
@@ -376,16 +376,20 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          ) : (
+          ) : loading ? (
             <div className="h-[600px] flex items-center justify-center text-gray-400 font-sans uppercase tracking-widest text-xs">
               Loading Premium Collection...
+            </div>
+          ) : (
+            <div className="h-[600px] flex items-center justify-center text-gray-400 font-sans uppercase tracking-widest text-xs">
+              No Collection
             </div>
           )}
         </div>
       </section>
 
       {/* Map Section */}
-      <section className="py-24 bg-background">
+      <section className="py-[60px] bg-background">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             {/* Map Visual (Left) */}
@@ -401,19 +405,19 @@ export default function HomePage() {
               <div className="absolute inset-0 flex items-center justify-center -translate-y-12 pointer-events-none">
                 <div className="relative flex flex-col items-center">
                   {/* The Pin Head */}
-                  <div className="w-20 h-20 bg-[#a3e635] rounded-full border-[5px] border-white dark:border-gray-900 shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex items-center justify-center animate-bounce-slow relative z-10">
+                  <div className="w-20 h-20 bg-white text-gray-900 rounded-full border-[5px] border-white dark:border-gray-900 shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex items-center justify-center animate-bounce-slow relative z-10">
                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <div className="w-6 h-6 bg-[#ef4444] rounded-md flex items-center justify-center">
+                      <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center">
                         <Home className="w-3.5 h-3.5 text-white fill-current" />
                       </div>
                     </div>
                   </div>
                   
                   {/* Pin Tail */}
-                  <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[12px] border-t-[#a3e635] -mt-1 relative z-0"></div>
+                  <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[12px] border-t-white -mt-1 relative z-0"></div>
                   
                   {/* Label Pill - Compact and Professional */}
-                  <div className="mt-2 px-6 py-2 bg-[#a3e635] rounded-full shadow-[0_8px_20px_rgba(163,230,53,0.3)] border-2 border-white dark:border-gray-900 flex items-center gap-2">
+                  <div className="mt-2 px-6 py-2 bg-white text-gray-900 rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.1)] border-2 border-white dark:border-gray-900 flex items-center gap-2">
                     <span className="text-gray-900 font-bold text-sm tracking-tight whitespace-nowrap">
                       Dream Home 😊
                     </span>
@@ -441,7 +445,7 @@ export default function HomePage() {
       </section>
 
       {/* Property Showcase Section */}
-      <section id="showcase" className="py-32 bg-background">
+      <section id="showcase" className="py-[60px] bg-background">
         <div className="container-custom">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-20 gap-10">
             <div className="space-y-4">
@@ -469,12 +473,12 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="py-32 flex flex-col items-center gap-4">
-              <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
+            <div className="py-[60px] flex flex-col items-center gap-4">
+              <Loader2 className="w-12 h-12 animate-spin text-gray-900 dark:text-white" />
               <div className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">Synchronizing Inventory</div>
             </div>
           ) : error ? (
-            <div className="text-center py-24 bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="text-center py-[60px] bg-white dark:bg-gray-800 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
               <p className="text-red-600 dark:text-red-400 mb-8 font-medium">{error}</p>
               <Button onClick={fetchProperties} variant="outline" className="rounded-full px-10 py-6 border-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all">
                 Try Again
@@ -496,19 +500,19 @@ export default function HomePage() {
       </section>
 
       {/* List Your Property CTA Section */}
-      <section className="py-32 bg-background border-t border-gray-50 dark:border-gray-900/60 overflow-hidden">
+      <section className="py-[60px] bg-background border-t border-gray-50 dark:border-gray-900/60 overflow-hidden">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
             {/* Left Content Column */}
             <div className="lg:col-span-6 space-y-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 border border-gray-200 dark:border-gray-800 text-[10px] tracking-[0.2em] font-bold uppercase rounded-md text-gray-400">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-pulse" /> Owners Partnership
+                <Sparkles className="w-3.5 h-3.5 text-gray-900 dark:text-white animate-pulse" /> Owners Partnership
               </div>
               
               <div className="space-y-4">
                 <h2 className="text-5xl lg:text-7xl font-serif tracking-tight leading-[1.05] text-gray-900 dark:text-white font-normal">
                   List your estate. <br />
-                  <span className="italic text-emerald-600 dark:text-emerald-400 font-light">Reach collectors.</span>
+                  <span className="italic text-gray-900 dark:text-white dark:text-gray-500 font-light">Reach collectors.</span>
                 </h2>
                 <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed font-sans max-w-lg">
                   Expose your digital showcase directly to thousands of high-net-worth investors, premium buyers, and verified renters daily. Our architectural platform provides the absolute perfect home for your property.
@@ -518,7 +522,7 @@ export default function HomePage() {
               {/* Feature Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-4">
                 <div className="flex gap-4 items-start">
-                  <span className="font-serif text-3xl font-light text-emerald-600/70 dark:text-emerald-400/70 leading-none">01</span>
+                  <span className="font-serif text-3xl font-light text-gray-900 dark:text-white/70 dark:text-gray-500/70 leading-none">01</span>
                   <div>
                     <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">Maximum Exposure</h4>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">Featured homepage showcase shared across global channels.</p>
@@ -526,7 +530,7 @@ export default function HomePage() {
                 </div>
                 
                 <div className="flex gap-4 items-start">
-                  <span className="font-serif text-3xl font-light text-emerald-600/70 dark:text-emerald-400/70 leading-none">02</span>
+                  <span className="font-serif text-3xl font-light text-gray-900 dark:text-white/70 dark:text-gray-500/70 leading-none">02</span>
                   <div>
                     <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">5-Minute Onboarding</h4>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">Submit details, specs, and map coordinates in just a few taps.</p>
@@ -534,7 +538,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex gap-4 items-start">
-                  <span className="font-serif text-3xl font-light text-emerald-600/70 dark:text-emerald-400/70 leading-none">03</span>
+                  <span className="font-serif text-3xl font-light text-gray-900 dark:text-white/70 dark:text-gray-500/70 leading-none">03</span>
                   <div>
                     <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">Verified Request Leads</h4>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">Clean, filtered viewing booking requests sent direct to your email.</p>
@@ -542,7 +546,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex gap-4 items-start">
-                  <span className="font-serif text-3xl font-light text-emerald-600/70 dark:text-emerald-400/70 leading-none">04</span>
+                  <span className="font-serif text-3xl font-light text-gray-900 dark:text-white/70 dark:text-gray-500/70 leading-none">04</span>
                   <div>
                     <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">Zero Hidden Fees</h4>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">Complete pricing transparency, list entirely free of charge.</p>
@@ -567,7 +571,7 @@ export default function HomePage() {
                 
                 {/* Floating tags */}
                 <div className="absolute top-6 left-6 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white text-[9px] font-bold uppercase tracking-widest shadow-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live Showcase Pass
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" /> Live Showcase Pass
                 </div>
 
                 <div className="absolute top-6 right-6 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/10 text-white text-[9px] font-bold uppercase tracking-widest shadow-sm">
@@ -576,7 +580,7 @@ export default function HomePage() {
 
                 {/* Overlapping statistics overlays */}
                 <div className="absolute top-28 left-6 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl px-4 py-3 border border-gray-100 dark:border-gray-800 shadow-xl flex items-center gap-3 hover:-translate-y-0.5 transition-transform">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                  <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 dark:bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white">
                     <TrendingUp className="w-4.5 h-4.5" />
                   </div>
                   <div>
@@ -586,7 +590,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="absolute top-44 right-6 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl px-4 py-3 border border-gray-100 dark:border-gray-800 shadow-xl flex items-center gap-3 hover:-translate-y-0.5 transition-transform">
-                  <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-500">
+                  <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 dark:bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white">
                     <Star className="w-4.5 h-4.5 fill-current" />
                   </div>
                   <div>
@@ -598,13 +602,13 @@ export default function HomePage() {
                 {/* Glassmorphic call-to-action bar */}
                 <div className="absolute bottom-6 left-6 right-6 bg-white/10 dark:bg-black/40 backdrop-blur-xl border border-white/15 dark:border-white/5 rounded-3xl p-6 md:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shadow-2xl">
                   <div className="space-y-1 text-left">
-                    <div className="text-[9px] uppercase tracking-[0.2em] text-emerald-400 font-bold font-sans">Join 1,200+ Active Owners</div>
+                    <div className="text-[9px] uppercase tracking-[0.2em] text-gray-500 font-bold font-sans">Join 1,200+ Active Owners</div>
                     <h3 className="text-lg md:text-xl font-serif text-white font-light">
                       Ready to list your estate?
                     </h3>
                   </div>
                   <Link href="/add-property" className="w-full sm:w-auto">
-                    <Button className="w-full sm:w-auto h-14 rounded-full bg-white hover:bg-emerald-600 text-gray-900 hover:text-white font-bold text-xs uppercase tracking-widest px-8 transition-all duration-300 shadow-lg hover:shadow-emerald-500/20 hover:-translate-y-0.5">
+                    <Button className="w-full sm:w-auto h-14 rounded-full bg-white hover:bg-gray-100 dark:bg-gray-800 text-gray-900 hover:text-white font-bold text-xs uppercase tracking-widest px-8 transition-all duration-300 shadow-lg hover:shadow-gray-900/10 hover:-translate-y-0.5">
                       Get Started
                     </Button>
                   </Link>
@@ -616,7 +620,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-32 bg-gray-50 dark:bg-gray-900/30">
+      <section className="py-[60px] bg-gray-50 dark:bg-gray-900/30">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             <div className="lg:col-span-5 space-y-6">
@@ -637,15 +641,15 @@ export default function HomePage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className={cn(
                     "group bg-card text-card-foreground rounded-3xl p-8 border transition-all cursor-pointer",
-                    openFaq === i ? "border-emerald-500/50 shadow-lg shadow-emerald-500/5" : "border-gray-100 dark:border-gray-800 hover:border-emerald-500/30"
+                    openFaq === i ? "border-gray-900 dark:border-white shadow-lg shadow-gray-900/10" : "border-gray-100 dark:border-gray-800 hover:border-gray-900 dark:border-white"
                   )}
                 >
                   <div className="flex justify-between items-center">
-                    <h4 className={cn("text-lg font-bold transition-colors", openFaq === i ? "text-emerald-600" : "text-gray-900 dark:text-white")}>
+                    <h4 className={cn("text-lg font-bold transition-colors", openFaq === i ? "text-gray-900 dark:text-white" : "text-gray-900 dark:text-white")}>
                       {faq.question || faq.q}
                     </h4>
                     <div className={cn("transition-transform duration-300", openFaq === i ? "rotate-45" : "rotate-0")}>
-                      <Plus className={cn("w-5 h-5", openFaq === i ? "text-emerald-500" : "text-gray-400")} />
+                      <Plus className={cn("w-5 h-5", openFaq === i ? "text-gray-900 dark:text-white" : "text-gray-400")} />
                     </div>
                   </div>
                   {openFaq === i && (
@@ -663,7 +667,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-32 bg-background">
+      <section className="py-[60px] bg-background">
         <div className="container-custom">
           <div className="flex justify-between items-end mb-20">
             <h2 className="text-4xl md:text-6xl font-serif tracking-tight max-w-xl">What our clients say about us</h2>
@@ -690,7 +694,7 @@ export default function HomePage() {
             </div>
             <div className="space-y-10 lg:pl-10">
               <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-xl">
-                <Tag className="w-8 h-8 text-emerald-500" />
+                <Tag className="w-8 h-8 text-gray-900 dark:text-white" />
               </div>
               <blockquote className="text-2xl md:text-3xl font-serif leading-snug">
                 &quot;{settings?.testimonials?.[0]?.quote || "Working with this team was a pleasure. They understood our vision and helped us find a property that exceeded our expectations. We couldn't have done it without them!"}&quot;
@@ -713,36 +717,36 @@ export default function HomePage() {
       </section>
 
       {/* Modern Luxury CTA Section */}
-      <section className="py-32 bg-background relative overflow-hidden">
+      <section className="py-[60px] bg-background relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-50/10 to-transparent -z-10"></div>
         <div className="container-custom">
-          <div className="relative bg-gradient-to-br from-[#0E4B3E] via-[#093229] to-[#041713] rounded-[4rem] overflow-hidden p-12 md:p-24 border border-[#bc9d6a]/20 shadow-2xl">
+          <div className="relative bg-[#18181b] rounded-[4rem] overflow-hidden p-12 md:p-24 border border-white/10 shadow-2xl">
             {/* Background elements */}
-            <div className="absolute -top-48 -right-48 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
-            <div className="absolute -bottom-48 -left-48 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
+            <div className="absolute -top-48 -right-48 w-[500px] h-[500px] bg-gray-100 dark:bg-gray-800 rounded-full blur-[120px] -z-10 animate-pulse"></div>
+            <div className="absolute -bottom-48 -left-48 w-[500px] h-[500px] bg-gray-100 dark:bg-gray-800 rounded-full blur-[120px] -z-10 animate-pulse"></div>
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
               {/* Left Column: Premium Text */}
               <div className="lg:col-span-7 space-y-8 text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[#bc9d6a] text-xs font-bold uppercase tracking-[0.2em]">
-                  <Sparkles className="w-4 h-4 text-[#bc9d6a]" />
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-[0.2em]">
+                  <Sparkles className="w-4 h-4 text-white" />
                   {settings?.cta?.badgeText || "Curated Living"}
                 </div>
                 <h2 className="text-4xl md:text-7xl font-serif text-white tracking-tight leading-[0.95] max-w-2xl">
                   {settings?.cta?.title || "Ready to Make Your Dream Property a Reality?"}
                 </h2>
-                <p className="text-lg text-emerald-100/70 max-w-xl leading-relaxed font-sans">
+                <p className="text-lg text-gray-400 max-w-xl leading-relaxed font-sans">
                   {settings?.cta?.description || "Connect with our certified experts today to receive customized layout options, off-market pricing lists, and an unparalleled service experience."}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <Link href={settings?.cta?.buttonLink || "/listings"}>
-                    <Button size="lg" className="h-16 px-10 rounded-full bg-[#bc9d6a] text-white font-bold text-sm tracking-widest uppercase hover:bg-[#a88856] hover:scale-105 transition-all duration-300 shadow-lg shadow-amber-950/20">
+                    <Button size="lg" className="h-16 px-10 rounded-full bg-white text-white font-bold text-sm tracking-widest uppercase hover:bg-gray-200 text-[#09090b] hover:scale-105 transition-all duration-300 shadow-lg shadow-gray-900/10">
                       {settings?.cta?.buttonText || "Get Started"}
                     </Button>
                   </Link>
                   {settings?.cta?.secondaryButtonText && (
                     <Link href={settings?.cta?.secondaryButtonLink || "/contact"}>
-                      <button className="h-16 px-10 rounded-full border border-white/20 text-white font-bold text-sm tracking-widest uppercase hover:bg-white hover:text-[#0E4B3E] hover:border-white transition-all duration-300 bg-transparent flex items-center justify-center font-sans">
+                      <button className="h-16 px-10 rounded-full border border-white/20 text-white font-bold text-sm tracking-widest uppercase hover:bg-white hover:text-[#09090b] hover:border-white transition-all duration-300 bg-transparent flex items-center justify-center font-sans">
                         {settings?.cta?.secondaryButtonText}
                       </button>
                     </Link>
@@ -754,7 +758,7 @@ export default function HomePage() {
               <div className="lg:col-span-5 relative hidden lg:block">
                 <div className="relative w-full aspect-[4/5] max-w-[360px] mx-auto">
                   {/* Decorative Frame */}
-                  <div className="absolute -inset-4 rounded-[3rem] border border-[#bc9d6a]/30 translate-x-4 translate-y-4 -z-10"></div>
+                  <div className="absolute -inset-4 rounded-[3rem] border border-white/10 translate-x-4 translate-y-4 -z-10"></div>
                   
                   {/* Primary Image */}
                   <div className="w-full h-full rounded-[2.5rem] overflow-hidden border border-white/10 relative shadow-2xl">
@@ -768,8 +772,8 @@ export default function HomePage() {
 
                   {/* Overlapping Gold Badge */}
                   {settings?.cta?.ratingText && (
-                    <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-900 border border-[#bc9d6a]/40 p-6 rounded-[2rem] shadow-2xl flex items-center gap-4 animate-bounce duration-[3s]">
-                      <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-[#bc9d6a]">
+                    <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-900 border border-white/10 p-6 rounded-[2rem] shadow-2xl flex items-center gap-4 animate-bounce duration-[3s]">
+                      <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 dark:bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-white">
                         <Sparkles className="w-5 h-5 animate-pulse" />
                       </div>
                       <div>

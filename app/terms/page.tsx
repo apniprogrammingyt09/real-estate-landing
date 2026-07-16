@@ -8,7 +8,7 @@ export default function TermsPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative gradient-primary text-white py-16">
+      <section className="relative gradient-primary text-white py-[60px]">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -45,8 +45,8 @@ export default function TermsPage() {
                     not use this service.
                   </p>
                   <p>
-                    These Terms of Service ("Terms") govern your use of our website located at realestate.com (the
-                    "Service") operated by RealEstate ("us", "we", or "our").
+                    These Terms of Service ("Terms") govern your use of our website located at Elite Group.com (the
+                    "Service") operated by Elite Group ("us", "we", or "our").
                   </p>
                 </div>
               </div>
@@ -155,7 +155,7 @@ export default function TermsPage() {
                 <div className="space-y-4 text-gray-600 dark:text-gray-400">
                   <p>
                     The Service and its original content, features, and functionality are and will remain the exclusive
-                    property of RealEstate and its licensors. The Service is protected by copyright, trademark, and
+                    property of Elite Group and its licensors. The Service is protected by copyright, trademark, and
                     other laws.
                   </p>
                   <p>
@@ -212,7 +212,7 @@ export default function TermsPage() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Limitation of Liability</h2>
                 <div className="text-gray-600 dark:text-gray-400 space-y-4">
                   <p>
-                    In no event shall RealEstate, nor its directors, employees, partners, agents, suppliers, or
+                    In no event shall Elite Group, nor its directors, employees, partners, agents, suppliers, or
                     affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages,
                     including without limitation, loss of profits, data, use, goodwill, or other intangible losses,
                     resulting from your use of the Service.
@@ -229,7 +229,7 @@ export default function TermsPage() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Indemnification</h2>
                 <div className="text-gray-600 dark:text-gray-400">
                   <p>
-                    You agree to defend, indemnify, and hold harmless RealEstate and its licensee and licensors, and
+                    You agree to defend, indemnify, and hold harmless Elite Group and its licensee and licensors, and
                     their employees, contractors, agents, officers and directors, from and against any and all claims,
                     damages, obligations, losses, liabilities, costs or debt, and expenses (including but not limited to
                     attorney's fees).
@@ -282,7 +282,7 @@ export default function TermsPage() {
               </div>
 
               {/* Contact Information */}
-              <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg">
+              <div className="bg-[#f4f4f5] dark:bg-gray-800 p-8 rounded-lg">
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
                     <Mail className="h-6 w-6 text-primary" />
@@ -293,7 +293,7 @@ export default function TermsPage() {
                   <p className="mb-4">If you have any questions about these Terms of Service, please contact us:</p>
                   <div className="space-y-2">
                     <p>
-                      <strong>Email:</strong> legal@realestate.com
+                      <strong>Email:</strong> legal@Elite Group.com
                     </p>
                     <p>
                       <strong>Phone:</strong> +1 (555) 123-4567

@@ -78,18 +78,18 @@ export default function AgentsPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative py-32 md:py-48 overflow-hidden">
-        <div className="absolute inset-0 bg-emerald-50 dark:bg-emerald-950/20 -z-10"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
+      <section className="relative py-[60px] md:py-[60px] overflow-hidden">
+        <div className="absolute inset-0 bg-[#f4f4f5] dark:bg-emerald-950/20 -z-10"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-transparent dark:bg-[#f4f4f5]0/10 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-transparent dark:bg-[#f4f4f5]0/10 rounded-full blur-3xl -z-10"></div>
         
         <div className="container-custom relative">
           <div className="max-w-4xl">
-            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] uppercase tracking-[0.2em] mb-6">
+            <div className="flex items-center gap-2 text-[#09090b] dark:text-[#52525b] font-bold text-[10px] uppercase tracking-[0.2em] mb-6">
               <Star className="w-4 h-4" />
               Elite Agents
             </div>
-            <h1 className="text-6xl md:text-8xl font-serif text-gray-900 dark:text-white leading-[0.9] tracking-tighter mb-8">
+            <h1 className="text-6xl md:text-8xl font-sans text-gray-900 dark:text-white leading-[0.9] tracking-tighter mb-8">
               Meet the masters <br/> of modern living.
             </h1>
             <p className="text-xl text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed mb-10">
@@ -100,16 +100,16 @@ export default function AgentsPage() {
       </section>
 
       {/* Team Stats */}
-      <section className="py-24 border-y border-gray-100 dark:border-gray-800 bg-background">
+      <section className="py-[60px] border-y border-[#ececee] dark:border-gray-800 bg-background">
         <div className="container-custom">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-16">
             {teamStats.map((stat, index) => (
               <div key={index} className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <div className="w-12 h-12 rounded-[14px] bg-[#f4f4f5] dark:bg-[#09090b]/30 flex items-center justify-center text-[#09090b] dark:text-[#52525b]">
                   <stat.icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-4xl md:text-5xl font-serif tracking-tight text-gray-900 dark:text-white mb-2">{stat.value}</div>
+                  <div className="text-4xl md:text-5xl font-sans tracking-tight text-gray-900 dark:text-white mb-2">{stat.value}</div>
                   <div className="text-sm font-bold uppercase tracking-widest text-gray-400">{stat.label}</div>
                 </div>
               </div>
@@ -119,28 +119,28 @@ export default function AgentsPage() {
       </section>
 
       {/* Agents Grid */}
-      <section className="py-32 bg-gray-50 dark:bg-gray-900/50">
+      <section className="py-[60px] bg-[#f4f4f5] dark:bg-gray-900/50">
         <div className="container-custom">
           <div className="max-w-3xl mb-24">
-            <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-4">The Team</p>
-            <h2 className="text-5xl md:text-6xl font-serif tracking-tight text-gray-900 dark:text-white leading-[1.1]">
+            <p className="text-[10px] font-bold text-[#09090b] uppercase tracking-widest mb-4">The Team</p>
+            <h2 className="text-5xl md:text-6xl font-sans tracking-tight text-gray-900 dark:text-white leading-[1.1]">
               Curators of fine properties.
             </h2>
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-32">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+            <div className="flex items-center justify-center py-[60px]">
+              <Loader2 className="h-8 w-8 animate-spin text-[#09090b]" />
             </div>
           ) : error ? (
-            <div className="text-center py-32 max-w-md mx-auto">
+            <div className="text-center py-[60px] max-w-md mx-auto">
               <p className="text-red-600 dark:text-red-400 mb-6 font-medium">{error}</p>
               <Button onClick={fetchAgents} variant="outline" className="rounded-full px-8 h-12">
                 Try Again
               </Button>
             </div>
           ) : agents.length === 0 ? (
-            <div className="text-center py-32 bg-white dark:bg-gray-900 rounded-[3rem] border border-gray-100 dark:border-gray-800">
+            <div className="text-center py-[60px] bg-white dark:bg-gray-900 rounded-[36px] border border-[#ececee] dark:border-gray-800">
               <p className="text-gray-500 font-medium mb-6">No agents available at the moment.</p>
               <Link href="/contact">
                 <Button className="rounded-full px-8 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 hover:scale-105 transition-transform">
@@ -164,7 +164,7 @@ export default function AgentsPage() {
                       }}
                     />
                     <div className="absolute top-6 right-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-full px-4 py-2 flex items-center space-x-2">
-                      <Star className="h-4 w-4 text-emerald-500 fill-emerald-500" />
+                      <Star className="h-4 w-4 text-[#09090b] fill-emerald-500" />
                       <span className="text-sm font-bold text-gray-900 dark:text-white">
                         {agent.rating > 0 ? agent.rating.toFixed(1) : "New"}
                       </span>
@@ -173,11 +173,11 @@ export default function AgentsPage() {
 
                   <div className="flex-1 space-y-6">
                     <div>
-                      <h3 className="text-3xl font-serif text-gray-900 dark:text-white tracking-tight mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{agent.name}</h3>
-                      <p className="text-sm font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">{agent.role}</p>
+                      <h3 className="text-3xl font-sans text-gray-900 dark:text-white tracking-tight mb-2 group-hover:text-[#09090b] dark:group-hover:text-[#52525b] transition-colors">{agent.name}</h3>
+                      <p className="text-sm font-bold uppercase tracking-widest text-[#09090b] dark:text-[#52525b]">{agent.role}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 pb-6 border-b border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 pb-6 border-b border-[#ececee] dark:border-gray-800">
                       <span>{agent.specialization}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
                       <span>{agent.experience} exp.</span>
@@ -193,7 +193,7 @@ export default function AgentsPage() {
                       <Button
                         onClick={() => handleViewProperties(agent.id)}
                         variant="outline"
-                        className="h-12 w-12 rounded-full border-gray-200 dark:border-gray-800 hover:border-emerald-500 hover:text-emerald-500 transition-colors p-0"
+                        className="h-12 w-12 rounded-full border-[#ececee] dark:border-gray-800 hover:border-[#ececee] hover:text-[#09090b] transition-colors p-0"
                       >
                         <Building className="h-4 w-4" />
                       </Button>
@@ -207,50 +207,58 @@ export default function AgentsPage() {
       </section>
 
       {/* Why Work With Us */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="heading-2 mb-4">Why Work With Our Team?</h2>
-            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-              Our agents are more than just real estate professionals – they're your partners in achieving your property
-              goals.
+      <section className="py-[80px] bg-[#f4f4f5]">
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="text-center mb-[80px] max-w-2xl mx-auto space-y-4">
+            <h2 className="text-[40px] md:text-[56px] font-sans font-semibold tracking-tight leading-[1.28] text-[#09090b]">
+              Why Work With Our Team?
+            </h2>
+            <p className="text-[15px] font-sans font-normal leading-[1.45] text-[#52525b]">
+              Our agents are more than just real estate professionals – they're your partners in achieving your property goals.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-primary" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[16px]">
+            {/* Card 1 */}
+            <div className="bg-[#ffffff] rounded-[36px] border border-[#ececee] p-[28px] flex flex-col items-start text-left hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-[48px] h-[48px] bg-[#f4f4f5] rounded-[14px] border border-[#ececee] flex items-center justify-center mb-6 shadow-sm">
+                <Users className="w-5 h-5 text-[#09090b]" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Local Expertise</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h3 className="text-[20px] font-sans font-semibold text-[#09090b] mb-3 leading-[1.5]">Local Expertise</h3>
+              <p className="text-[14px] font-sans font-normal leading-[1.45] text-[#52525b]">
                 Deep knowledge of local markets, neighborhoods, and property values.
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-secondary" />
+            
+            {/* Card 2 */}
+            <div className="bg-[#ffffff] rounded-[36px] border border-[#ececee] p-[28px] flex flex-col items-start text-left hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-[48px] h-[48px] bg-[#f4f4f5] rounded-[14px] border border-[#ececee] flex items-center justify-center mb-6 shadow-sm">
+                <Star className="w-5 h-5 text-[#09090b]" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Proven Results</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h3 className="text-[20px] font-sans font-semibold text-[#09090b] mb-3 leading-[1.5]">Proven Results</h3>
+              <p className="text-[14px] font-sans font-normal leading-[1.45] text-[#52525b]">
                 Track record of successful transactions and satisfied clients.
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="h-8 w-8 text-accent" />
+            
+            {/* Card 3 */}
+            <div className="bg-[#ffffff] rounded-[36px] border border-[#ececee] p-[28px] flex flex-col items-start text-left hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-[48px] h-[48px] bg-[#f4f4f5] rounded-[14px] border border-[#ececee] flex items-center justify-center mb-6 shadow-sm">
+                <Award className="w-5 h-5 text-[#09090b]" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Industry Recognition</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h3 className="text-[20px] font-sans font-semibold text-[#09090b] mb-3 leading-[1.5]">Industry Recognition</h3>
+              <p className="text-[14px] font-sans font-normal leading-[1.45] text-[#52525b]">
                 Award-winning agents recognized for excellence and innovation.
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-primary" />
+            
+            {/* Card 4 */}
+            <div className="bg-[#ffffff] rounded-[36px] border border-[#ececee] p-[28px] flex flex-col items-start text-left hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-[48px] h-[48px] bg-[#f4f4f5] rounded-[14px] border border-[#ececee] flex items-center justify-center mb-6 shadow-sm">
+                <TrendingUp className="w-5 h-5 text-[#09090b]" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Market Insights</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <h3 className="text-[20px] font-sans font-semibold text-[#09090b] mb-3 leading-[1.5]">Market Insights</h3>
+              <p className="text-[14px] font-sans font-normal leading-[1.45] text-[#52525b]">
                 Access to the latest market data and investment opportunities.
               </p>
             </div>
@@ -259,12 +267,12 @@ export default function AgentsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 bg-background border-t border-gray-100 dark:border-gray-800">
+      <section className="py-[60px] bg-background border-t border-[#ececee] dark:border-gray-800">
         <div className="container-custom">
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-3xl"></div>
+          <div className="bg-[#f4f4f5] dark:bg-[#09090b]/20 rounded-[36px] p-12 md:p-20 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-transparent dark:bg-[#f4f4f5]0/10 rounded-full blur-3xl"></div>
             <div className="relative z-10 max-w-2xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-serif text-gray-900 dark:text-white tracking-tight mb-6">
+              <h2 className="text-4xl md:text-5xl font-sans text-gray-900 dark:text-white tracking-tight mb-6">
                 Ready to find your match?
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-10 leading-relaxed">
@@ -272,12 +280,12 @@ export default function AgentsPage() {
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link href="/contact">
-                  <Button className="w-full sm:w-auto h-14 px-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold tracking-wide hover:scale-105 transition-transform">
+                  <Button className="w-full sm:w-auto h-14 px-8 rounded-full bg-[#09090b] hover:bg-[#09090b] text-white font-bold tracking-wide hover:scale-105 transition-transform">
                     Schedule Consultation
                   </Button>
                 </Link>
                 <Link href="/listings">
-                  <Button variant="outline" className="w-full sm:w-auto h-14 px-8 rounded-full border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 font-bold tracking-wide">
+                  <Button variant="outline" className="w-full sm:w-auto h-14 px-8 rounded-full border-2 border-[#ececee] text-[#09090b] hover:bg-[#f4f4f5] dark:hover:bg-[#09090b]/30 font-bold tracking-wide">
                     Browse Properties
                   </Button>
                 </Link>

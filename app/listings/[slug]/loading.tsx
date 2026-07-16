@@ -26,7 +26,7 @@ export default function PropertyLoading() {
       </section>
 
       {/* Property Details Skeleton */}
-      <section className="py-24 bg-background">
+      <section className="py-[60px] bg-background">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
             
@@ -120,7 +120,7 @@ export default function PropertyLoading() {
       </section>
 
       {/* Similar Properties Skeleton */}
-      <section className="py-24 border-t border-gray-100 dark:border-gray-800/80 bg-background">
+      <section className="py-[60px] border-t border-gray-100 dark:border-gray-800/80 bg-background">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
             <Skeleton className="h-12 w-64 mx-auto rounded-2xl" />

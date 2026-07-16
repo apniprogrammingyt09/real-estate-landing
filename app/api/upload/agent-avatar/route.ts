@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { put } from "@vercel/blob"
+import { blobStorage } from "@/lib/blob-storage"
 import { env } from "@/lib/env"
 
 export async function POST(request: NextRequest) {
@@ -21,26 +21,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "File size must be less than 2MB" }, { status: 400 })
     }
 
-    // Check if blob token is available
-    if (!env.BLOB_READ_WRITE_TOKEN) {
-      console.error("BLOB_READ_WRITE_TOKEN is not configured")
+    // Check if cloudinary is available
+    if (!env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
+      console.error("Cloudinary is not configured")
       return NextResponse.json({ 
-        error: "File upload is not configured. Please configure Vercel Blob storage." 
+        error: "File upload is not configured. Please configure Cloudinary." 
       }, { status: 500 })
     }
 
     // Generate a unique filename
-    const filename = `agent-avatars/${Date.now()}-${file.name.replace(/\s+/g, "-")}`
+    const filename = `agent-avatars/${Date.now()}-${file.name.replace(/\\s+/g, "-")}`
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, file, {
-      access: "public",
-      token: env.BLOB_READ_WRITE_TOKEN,
-    })
+    // Upload to Cloudinary
+    const url = await blobStorage.uploadImage(file, filename)
 
-    return NextResponse.json({ url: blob.url })
+    return NextResponse.json({ url })
   } catch (error) {
-    console.error("Error uploading to blob storage:", error)
+    console.error("Error uploading to Cloudinary:", error)
     return NextResponse.json({ 
       error: `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}` 
     }, { status: 500 })

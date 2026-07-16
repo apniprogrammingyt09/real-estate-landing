@@ -10,7 +10,7 @@ export default function ListingsLoading() {
       <Header />
 
       {/* Hero Section Skeleton */}
-      <section className="relative py-32 md:py-48 overflow-hidden">
+      <section className="relative py-[60px] md:py-[60px] overflow-hidden">
         <div className="absolute inset-0 bg-emerald-50 dark:bg-emerald-950/20 -z-10 animate-pulse"></div>
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
@@ -57,7 +57,7 @@ export default function ListingsLoading() {
       </section>
 
       {/* Listings Grid Skeleton */}
-      <section className="py-24 bg-background">
+      <section className="py-[60px] bg-background">
         <div className="container-custom">
           <div className="flex justify-between items-center mb-12">
             <Skeleton className="h-6 w-48 rounded-lg" />
