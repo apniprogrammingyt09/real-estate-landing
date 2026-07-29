@@ -13,6 +13,7 @@ import Footer from "@/components/footer"
 import { getProperties, type Property } from "@/lib/properties-data"
 import { cn } from "@/lib/utils"
 import ListingsLoading from "./loading"
+import Image from "next/image"
 
 function ListingsContent() {
   const searchParams = useSearchParams()
@@ -366,8 +367,14 @@ function ListingsContent() {
                 </SelectTrigger>
                 <SelectContent className="rounded-[14px] border-[#ececee] dark:border-gray-800">
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="sale">For Sale</SelectItem>
-                  <SelectItem value="rent">For Rent</SelectItem>
+                  {(settings?.propertyCategories || ["For Sale", "For Rent"]).map((category: string) => {
+                    let val = category.toLowerCase().replace("for ", "");
+                    return (
+                      <SelectItem key={category} value={val}>
+                        {category}
+                      </SelectItem>
+                    )
+                  })}
                   <SelectItem value="premium">Premium</SelectItem>
                   <SelectItem value="featured">Featured</SelectItem>
                 </SelectContent>
@@ -440,10 +447,10 @@ function ListingsContent() {
 
           {filteredProperties.length === 0 ? (
             <div className="py-[60px] text-center bg-[#f4f4f5] dark:bg-gray-900/50 rounded-[36px] border border-dashed border-[#ececee] dark:border-gray-800">
-              <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-[36px] flex items-center justify-center mx-auto mb-8 border border-[#ececee] shadow-none">
-                <Search className="w-10 h-10 text-gray-300" />
+              <div className="relative w-48 h-48 mx-auto mb-6">
+                <Image src="/no-data.webp" alt="No properties" fill className="object-contain" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">No results found</h3>
+              <h3 className="text-2xl font-bold mb-4">No properties</h3>
               <p className="text-gray-500 max-w-sm mx-auto mb-10 leading-relaxed font-medium">We couldn&apos;t find any properties matching your current filters. Try broadening your search.</p>
               <Button
                 onClick={() => {
@@ -474,7 +481,7 @@ function ListingsContent() {
             <div className={viewType === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" : "space-y-8"}>
               {currentProperties.map((property, idx) => (
                 <div key={property.id} className="animate-in fade-in slide-in-from-bottom-12 duration-1000 fill-mode-both" style={{ animationDelay: `${idx * 100}ms` }}>
-                  <PropertyCard property={property} />
+                  <PropertyCard property={property} currency={settings?.activeCurrency} priority={idx < 2} typeAmenityConfigs={settings?.typeAmenityConfigs} />
                 </div>
               ))}
             </div>

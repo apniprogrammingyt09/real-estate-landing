@@ -81,6 +81,7 @@ export interface Property {
   agentName: string | null
   createdAt: string
   updatedAt: string
+  flags?: string[]
   submittedBy?: {
     name: string
     email: string
@@ -146,6 +147,18 @@ export interface Booking {
   updatedAt: string
 }
 
+export interface FeatureConfig {
+  name: string
+  iconUrl: string
+  associatedTypes: string[]
+}
+
+export interface CurrencyConfig {
+  code: string
+  symbol: string
+  position: "prefix" | "suffix"
+}
+
 export interface SiteSettings {
   _id?: ObjectId
   id: string
@@ -175,6 +188,14 @@ export interface SiteSettings {
     ratingText?: string
   }
   propertyTypes?: string[]
+  propertyCategories?: string[]
+  propertyFlags?: string[]
+  activeCurrency?: CurrencyConfig
+  featureConfigs?: FeatureConfig[]
+  typeAmenityConfigs?: {
+    typeName: string
+    amenities: { key: string; label: string; icon: string; unit?: string }[]
+  }[]
   updatedAt: string
 }
 
@@ -187,13 +208,13 @@ class MongoDatabase {
       const db = await getDatabase()
 
       // Create default admin user if none exists
-      const adminExists = await db.collection("admins").findOne({ email: "admin@Elite Group.com" })
+      const adminExists = await db.collection("admins").findOne({ email: "admin@admin.com" })
       if (!adminExists) {
         const hashedPassword = await bcrypt.hash("admin123", 12)
         const defaultAdmin: Admin = {
           id: "admin-1",
           name: "System Administrator",
-          email: "admin@Elite Group.com",
+          email: "admin@admin.com",
           password: hashedPassword,
           role: "admin",
           phone: "+1234567890",
@@ -757,16 +778,23 @@ class MongoDatabase {
     }
   }
 
-  async assignAgentToProperty(propertyId: number, agentId: string): Promise<boolean> {
+  async assignAgentToProperty(propertyId: number | string, agentId: string): Promise<boolean> {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      const property = await db.collection("properties").findOne({ id: propertyId })
+      const numericId = typeof propertyId === "string" ? Number(propertyId) : propertyId
+      if (isNaN(numericId)) {
+        console.error("assignAgentToProperty: invalid propertyId", propertyId)
+        return false
+      }
+      const property = await db.collection("properties").findOne({ id: numericId })
       const agent = await db.collection("agents").findOne({ id: agentId })
+
+      console.log("assignAgentToProperty lookup:", { numericId, propertyFound: !!property, agentFound: !!agent })
 
       if (!property || !agent) return false
 
-      await this.updateProperty(propertyId, {
+      await this.updateProperty(numericId, {
         agentId,
         agentName: agent.name,
       })
@@ -1076,6 +1104,39 @@ class MongoDatabase {
             ratingText: "Rated 4.9/5 by Clients"
           },
           propertyTypes: ["House", "Apartment", "Condo", "Villa", "Land"],
+          propertyCategories: ["For Sale", "For Rent", "Commercial", "Residential"],
+          propertyFlags: ["Featured", "Premium"],
+          activeCurrency: {
+            code: "USD",
+            symbol: "$",
+            position: "prefix"
+          },
+          featureConfigs: [
+            { name: "Swimming Pool", iconUrl: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=80&h=80&fit=crop", associatedTypes: ["House", "Villa", "Condo"] },
+            { name: "Garden", iconUrl: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=80&h=80&fit=crop", associatedTypes: ["House", "Villa"] },
+            { name: "Garage", iconUrl: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=80&h=80&fit=crop", associatedTypes: ["House", "Villa", "Condo", "Apartment"] }
+          ],
+          typeAmenityConfigs: [
+            { typeName: "House", amenities: [
+              { key: "bedrooms", label: "Beds", icon: "bed", unit: "" },
+              { key: "bathrooms", label: "Baths", icon: "bath", unit: "" },
+              { key: "size", label: "Area", icon: "square", unit: "sqft" }
+            ]},
+            { typeName: "Apartment", amenities: [
+              { key: "bedrooms", label: "Beds", icon: "bed", unit: "" },
+              { key: "bathrooms", label: "Baths", icon: "bath", unit: "" },
+              { key: "size", label: "Area", icon: "square", unit: "sqft" }
+            ]},
+            { typeName: "Land", amenities: [
+              { key: "size", label: "Area", icon: "square", unit: "acres" }
+            ]},
+            { typeName: "Office", amenities: [
+              { key: "size", label: "Area", icon: "square", unit: "sqft" }
+            ]},
+            { typeName: "Commercial", amenities: [
+              { key: "size", label: "Area", icon: "square", unit: "sqft" }
+            ]}
+          ],
           updatedAt: new Date().toISOString()
         }
         await db.collection("settings").insertOne(defaultSettings)
@@ -1092,6 +1153,19 @@ class MongoDatabase {
           type: "image",
           url: "https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=2070"
         },
+        propertyTypes: ["House", "Apartment", "Condo", "Villa", "Land"],
+        propertyCategories: ["For Sale", "For Rent", "Commercial", "Residential"],
+        propertyFlags: ["Featured", "Premium"],
+        activeCurrency: {
+          code: "USD",
+          symbol: "$",
+          position: "prefix"
+        },
+        featureConfigs: [
+          { name: "Swimming Pool", iconUrl: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=80&h=80&fit=crop", associatedTypes: ["House", "Villa", "Condo"] },
+          { name: "Garden", iconUrl: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=80&h=80&fit=crop", associatedTypes: ["House", "Villa"] },
+          { name: "Garage", iconUrl: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=80&h=80&fit=crop", associatedTypes: ["House", "Villa", "Condo", "Apartment"] }
+        ],
         updatedAt: new Date().toISOString()
       } as SiteSettings
     }

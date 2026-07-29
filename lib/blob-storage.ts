@@ -108,6 +108,38 @@ export class BlobStorageService {
       throw new Error("Failed to list images")
     }
   }
+
+  async uploadIcon(file: File, pathname: string): Promise<string> {
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      
+      const folder = pathname.includes('/') ? pathname.substring(0, pathname.lastIndexOf('/')) : ''
+      const public_id = pathname.includes('/') ? pathname.substring(pathname.lastIndexOf('/') + 1) : pathname
+      
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { 
+            folder, 
+            public_id: public_id.replace(/\.[^/.]+$/, "") // Remove extension
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Cloudinary upload error:", error)
+              reject(new Error("Failed to upload icon to Cloudinary"))
+            } else {
+              // Return original URL to keep vector format or original GIF animation intact
+              resolve(result!.secure_url)
+            }
+          }
+        )
+        uploadStream.end(buffer)
+      })
+    } catch (error) {
+      console.error("Error preparing to upload to cloudinary:", error)
+      throw new Error("Failed to upload icon")
+    }
+  }
 }
 
 export const blobStorage = new BlobStorageService()

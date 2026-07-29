@@ -126,6 +126,7 @@ export async function deleteProperty(id: number): Promise<void> {
 export async function getAdminProperties(): Promise<{
   active: Property[]
   pending: Property[]
+  rejected: Property[]
   total: number
 }> {
   const response = await fetch("/api/admin/properties")
@@ -165,7 +166,7 @@ export async function rejectProperty(propertyId: number, reason?: string): Promi
 
 export async function updatePropertyTags(
   propertyId: number,
-  tags: { featured?: boolean; best?: boolean },
+  tags: { featured?: boolean; best?: boolean; flags?: string[] },
 ): Promise<void> {
   const response = await fetch("/api/admin/properties", {
     method: "POST",

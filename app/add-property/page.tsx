@@ -22,14 +22,20 @@ export default function AddPropertyPage() {
   const [error, setError] = useState<string | null>(null)
   const [uploadingImages, setUploadingImages] = useState(false)
   const [propertyTypes, setPropertyTypes] = useState<string[]>(["House", "Apartment", "Condo", "Villa", "Townhouse", "Studio", "Duplex", "Commercial"])
+  const [featureConfigs, setFeatureConfigs] = useState<{ name: string; iconUrl: string; associatedTypes: string[] }[]>([])
+  const [settings, setSettings] = useState<any>(null)
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const response = await fetch("/api/settings")
         const data = await response.json()
+        setSettings(data)
         if (data.propertyTypes) {
           setPropertyTypes(data.propertyTypes)
+        }
+        if (data.featureConfigs) {
+          setFeatureConfigs(data.featureConfigs)
         }
       } catch (error) {
         console.error("Error fetching settings:", error)
@@ -91,8 +97,11 @@ export default function AddPropertyPage() {
     "Updated Kitchen",
     "Master Suite",
     "Basement",
-    "Deck/Patio",
   ]
+
+  const currentFeaturesToShow = featureConfigs.length > 0
+    ? featureConfigs.filter(f => !f.associatedTypes || f.associatedTypes.length === 0 || f.associatedTypes.includes(formData.type))
+    : availableFeatures.map(f => ({ name: f, iconUrl: "" }))
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -326,6 +335,7 @@ export default function AddPropertyPage() {
         status: "pending",
         featured: false,
         best: false,
+        flags: [],
         propertyId: null,
         agentId: null,
         agentName: null,
@@ -441,8 +451,14 @@ export default function AddPropertyPage() {
                       <SelectValue placeholder="Select listing type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sale">For Sale</SelectItem>
-                      <SelectItem value="rent">For Rent</SelectItem>
+                      {(settings?.propertyCategories || ["For Sale", "For Rent"]).map((category: string) => {
+                        let val = category.toLowerCase().replace("for ", "");
+                        return (
+                          <SelectItem key={category} value={val}>
+                            {category}
+                          </SelectItem>
+                        )
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -679,18 +695,24 @@ export default function AddPropertyPage() {
             </CardHeader>
             <CardContent className="p-8">
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {availableFeatures.map((feature) => (
-                  <div key={feature} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={feature}
-                      checked={formData.features.includes(feature)}
-                      onCheckedChange={() => handleFeatureToggle(feature)}
-                    />
-                    <Label htmlFor={feature} className="text-sm">
-                      {feature}
-                    </Label>
-                  </div>
-                ))}
+                {currentFeaturesToShow.map((feat) => {
+                  const feature = feat.name
+                  return (
+                    <div key={feature} className="flex items-center space-x-2 p-2.5 rounded-xl border dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all">
+                      <Checkbox
+                        id={feature}
+                        checked={formData.features.includes(feature)}
+                        onCheckedChange={() => handleFeatureToggle(feature)}
+                      />
+                      <Label htmlFor={feature} className="text-sm flex items-center gap-2 cursor-pointer">
+                        {feat.iconUrl && (
+                          <img src={feat.iconUrl} alt="" className="w-5 h-5 object-contain" />
+                        )}
+                        <span>{feature}</span>
+                      </Label>
+                    </div>
+                  )
+                })}
               </div>
             </CardContent>
           </Card>

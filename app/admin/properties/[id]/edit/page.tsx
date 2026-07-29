@@ -44,9 +44,12 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
     features: [] as string[],
     featured: false,
     best: false,
+    flags: [] as string[],
   })
 
   const [propertyTypes, setPropertyTypes] = useState<string[]>(["House", "Apartment", "Condo", "Villa", "Townhouse", "Studio", "Duplex", "Commercial"])
+  const [featureConfigs, setFeatureConfigs] = useState<{ name: string; iconUrl: string; associatedTypes: string[] }[]>([])
+  const [settings, setSettings] = useState<any>(null)
 
   const availableFeatures = [
     "Swimming Pool",
@@ -65,6 +68,10 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
     "Laundry Room",
     "Walk-in Closet",
   ]
+
+  const currentFeaturesToShow = featureConfigs.length > 0
+    ? featureConfigs.filter(f => !f.associatedTypes || f.associatedTypes.length === 0 || f.associatedTypes.includes(formData.type))
+    : availableFeatures.map(f => ({ name: f, iconUrl: "" }))
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== "admin") {
@@ -88,8 +95,12 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
       try {
         const settingsRes = await fetch("/api/settings")
         const settingsData = await settingsRes.json()
+        setSettings(settingsData)
         if (settingsData.propertyTypes) {
           setPropertyTypes(settingsData.propertyTypes)
+        }
+        if (settingsData.featureConfigs) {
+          setFeatureConfigs(settingsData.featureConfigs)
         }
       } catch (e) {
         console.error("Error fetching settings:", e)
@@ -111,6 +122,10 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
         features: propertyData.features,
         featured: propertyData.featured,
         best: propertyData.best,
+        flags: propertyData.flags || [
+          ...(propertyData.featured ? ["Featured"] : []),
+          ...(propertyData.best ? ["Premium"] : [])
+        ],
       })
     } catch (error) {
       console.error("Error loading property:", error)
@@ -154,8 +169,9 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
         size: Number.parseInt(formData.size) || 0,
         yearBuilt: formData.type.toLowerCase() === "land" ? 0 : Number.parseInt(formData.yearBuilt) || 0,
         features: formData.features,
-        featured: formData.featured,
-        best: formData.best,
+        featured: formData.flags.includes("Featured"),
+        best: formData.flags.includes("Premium"),
+        flags: formData.flags,
       }
 
       await updateProperty(property.id, updates)
@@ -179,52 +195,43 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-gray-50">
-        <AdminNavigation />
-        <div className="flex-1 lg:ml-64 flex items-center justify-center">
-          <LoadingAnimation status="loading" message="Loading property..." />
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingAnimation status="loading" message="Loading property..." />
       </div>
     )
   }
 
   if (error || !property) {
     return (
-      <div className="flex h-screen bg-gray-50">
-        <AdminNavigation />
-        <div className="flex-1 lg:ml-64 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">{error || "Property not found"}</p>
-            <Link href="/admin/properties">
-              <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Properties
-              </Button>
-            </Link>
-          </div>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || "Property not found"}</p>
+          <Link href="/admin/properties">
+            <Button variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Properties
+            </Button>
+          </Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <AdminNavigation />
-
-      <div className="flex-1 lg:ml-64 overflow-auto">
+    <div className="min-h-screen bg-gray-50 pb-12">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow-sm border-b sticky top-0 z-20">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center">
               <div className="flex items-center">
                 <Link href="/admin/properties" className="mr-4">
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="rounded-full">
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                 </Link>
                 <div>
-                  <h1 className="text-xl font-semibold text-gray-900">Edit Property</h1>
-                  <p className="text-sm text-gray-500">{property.title}</p>
+                  <h1 className="text-xl font-bold text-gray-900">Edit Property</h1>
+                  <p className="text-xs text-gray-500 font-sans">{property.title}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -240,7 +247,7 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
                           : ""
                   }
                 />
-                <Button onClick={handleSave} disabled={saving}>
+                <Button onClick={handleSave} disabled={saving} className="rounded-xl shadow-md">
                   {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                   Save Changes
                 </Button>
@@ -250,11 +257,11 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
         </div>
 
         {/* Content */}
-        <div className="py-6">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="space-y-8">
               {/* Basic Information */}
-              <Card>
+              <Card className="rounded-[2rem] border border-gray-150 shadow-sm shadow-emerald-500/5">
                 <CardHeader>
                   <CardTitle>Basic Information</CardTitle>
                   <CardDescription>Update the basic property details</CardDescription>
@@ -296,8 +303,14 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="sale">For Sale</SelectItem>
-                          <SelectItem value="rent">For Rent</SelectItem>
+                          {(settings?.propertyCategories || ["For Sale", "For Rent"]).map((category: string) => {
+                            let val = category.toLowerCase().replace("for ", "");
+                            return (
+                              <SelectItem key={category} value={val}>
+                                {category}
+                              </SelectItem>
+                            )
+                          })}
                         </SelectContent>
                       </Select>
                     </div>
@@ -387,7 +400,7 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
               </Card>
 
               {/* Location */}
-              <Card>
+              <Card className="rounded-[2rem] border border-gray-150 shadow-sm shadow-emerald-500/5">
                 <CardHeader>
                   <CardTitle>Location</CardTitle>
                   <CardDescription>Property location details</CardDescription>
@@ -416,7 +429,7 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
               </Card>
 
               {/* Features & Tags */}
-              <Card>
+              <Card className="rounded-[2rem] border border-gray-150 shadow-sm shadow-emerald-500/5">
                 <CardHeader>
                   <CardTitle>Features & Tags</CardTitle>
                   <CardDescription>Property features and promotional tags</CardDescription>
@@ -425,47 +438,53 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
                   {/* Promotional Tags */}
                   <div>
                     <Label className="text-base font-medium">Promotional Tags</Label>
-                    <div className="mt-2 space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="featured"
-                          checked={formData.featured}
-                          onCheckedChange={(checked) => handleInputChange("featured", checked as boolean)}
-                        />
-                        <Label htmlFor="featured">Featured Property</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="best"
-                          checked={formData.best}
-                          onCheckedChange={(checked) => handleInputChange("best", checked as boolean)}
-                        />
-                        <Label htmlFor="best">Premium Property</Label>
-                      </div>
+                    <div className="mt-3 flex flex-wrap gap-4">
+                      {(settings?.propertyFlags || ["Featured", "Premium"]).map((flag: string) => {
+                        const isChecked = formData.flags.includes(flag)
+                        return (
+                          <div key={flag} className="flex items-center space-x-2 p-2 rounded-lg border dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all cursor-pointer">
+                            <Checkbox
+                              id={`flag-${flag}`}
+                              checked={isChecked}
+                              onCheckedChange={(checked) => {
+                                const newFlags = checked
+                                  ? [...formData.flags, flag]
+                                  : formData.flags.filter(f => f !== flag)
+                                handleInputChange("flags", newFlags)
+                              }}
+                            />
+                            <Label htmlFor={`flag-${flag}`} className="text-sm font-semibold cursor-pointer">{flag}</Label>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
 
-                  {/* Property Features */}
                   <div>
                     <Label className="text-base font-medium">Property Features</Label>
                     <div className="mt-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {availableFeatures.map((feature) => (
-                        <div key={feature} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={feature}
-                            checked={formData.features.includes(feature)}
-                            onCheckedChange={() => handleFeatureToggle(feature)}
-                          />
-                          <Label htmlFor={feature} className="text-sm">
-                            {feature}
-                          </Label>
-                        </div>
-                      ))}
+                      {currentFeaturesToShow.map((feat) => {
+                        const feature = feat.name
+                        return (
+                          <div key={feature} className="flex items-center space-x-2 p-2 rounded-lg border dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all">
+                            <Checkbox
+                              id={feature}
+                              checked={formData.features.includes(feature)}
+                              onCheckedChange={() => handleFeatureToggle(feature)}
+                            />
+                            <Label htmlFor={feature} className="text-sm flex items-center gap-2 cursor-pointer">
+                              {feat.iconUrl && (
+                                <img src={feat.iconUrl} alt="" className="w-5 h-5 object-contain" />
+                              )}
+                              <span>{feature}</span>
+                            </Label>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
           </div>
         </div>
       </div>

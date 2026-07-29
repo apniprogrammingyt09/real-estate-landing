@@ -14,6 +14,8 @@ import PropertyImageGallery from "@/components/property-image-gallery"
 import ShareButton from "@/components/share-button"
 import LikeButton from "@/components/like-button"
 import { getPropertyBySlugServer } from "@/lib/properties-server"
+import { db } from "@/lib/db"
+import { formatPrice } from "@/lib/utils"
 
 function getFeatureIcon(feature: string) {
   const name = feature.toLowerCase()
@@ -47,6 +49,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   if (!property) {
     notFound()
   }
+
+  const settings = await db.getSettings()
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f4f5] font-sans selection:bg-[#ececee] selection:text-[#09090b]">
@@ -184,10 +188,9 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                 </div>
               </div>
 
-              {/* Price & Action Badge */}
               <div className="flex justify-between items-center gap-2">
                 <div className="text-[32px] font-bold text-[#09090b] tracking-tight">
-                  ${property.price.toLocaleString()}
+                  {formatPrice(property.price, settings?.activeCurrency)}
                   {property.priceType === "rent" && <span className="text-[15px] font-normal text-[#52525b]">/mo</span>}
                 </div>
               </div>
@@ -255,8 +258,6 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
             ))}
           </div>
         </section>
-
-        {/* Similar Collection */}
         <section className="py-[60px] border-t border-[#ececee]">
           <div className="flex justify-between items-end mb-16">
             <div className="space-y-2">

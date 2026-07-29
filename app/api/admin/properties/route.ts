@@ -6,10 +6,12 @@ export async function GET() {
     const allProperties = await db.getProperties()
     const activeProperties = allProperties.filter((p) => p.status === "active")
     const pendingProperties = allProperties.filter((p) => p.status === "pending")
+    const rejectedProperties = allProperties.filter((p) => p.status === "rejected")
 
     return NextResponse.json({
       active: activeProperties,
       pending: pendingProperties,
+      rejected: rejectedProperties,
       total: allProperties.length,
     })
   } catch (error) {
@@ -21,9 +23,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { action, propertyId, agentId, featured, best, reason } = body
+    const { action, agentId, featured, best, flags, reason } = body
+    const propertyId = body.propertyId !== undefined ? Number(body.propertyId) : undefined
 
-    console.log("Admin action received:", { action, propertyId, agentId, featured, best, reason })
+    console.log("Admin action received:", { action, propertyId, agentId, featured, best, flags, reason })
 
     switch (action) {
       case "approve":
@@ -60,6 +63,7 @@ export async function POST(request: NextRequest) {
         const updates: any = {}
         if (featured !== undefined) updates.featured = featured
         if (best !== undefined) updates.best = best
+        if (flags !== undefined) updates.flags = flags
 
         const updatedProperty = await db.updateProperty(propertyId, updates)
         if (!updatedProperty) {
@@ -71,15 +75,17 @@ export async function POST(request: NextRequest) {
 
       case "assignAgent":
         if (!propertyId || !agentId) {
+          console.error("assignAgent: missing IDs", { propertyId, agentId, rawPropertyId: body.propertyId })
           return NextResponse.json({ error: "Property ID and Agent ID are required" }, { status: 400 })
         }
 
+        console.log("assignAgent: attempting with", { propertyId, agentId, propertyIdType: typeof propertyId })
         const assigned = await db.assignAgentToProperty(propertyId, agentId)
+        console.log("assignAgent: result =", assigned)
         if (!assigned) {
           return NextResponse.json({ error: "Property or agent not found" }, { status: 404 })
         }
 
-        console.log("Agent assigned to property:", { propertyId, agentId })
         return NextResponse.json({ success: true })
 
       default:

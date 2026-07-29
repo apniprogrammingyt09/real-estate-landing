@@ -46,8 +46,8 @@ export default function AgentPropertiesPage(props: AgentPropertiesPageProps) {
         setAgentName(agent.name)
       }
 
-      setAgentProperties(data.assigned)
-      setAvailableProperties(data.available)
+      setAgentProperties(data.assigned ?? [])
+      setAvailableProperties(data.available ?? [])
     } catch (error) {
       console.error("Error fetching agent properties:", error)
     } finally {
@@ -64,7 +64,7 @@ export default function AgentPropertiesPage(props: AgentPropertiesPageProps) {
     }
   }
 
-  const filteredAvailableProperties = availableProperties.filter(
+  const filteredAvailableProperties = (availableProperties ?? []).filter(
     (property) =>
       property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       property.address.toLowerCase().includes(searchTerm.toLowerCase()),

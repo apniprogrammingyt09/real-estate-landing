@@ -11,20 +11,18 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Search, MapPin, Home, Users, Award, TrendingUp, Star, Loader2, Tag, Key, Building, Plus, ArrowRight, ArrowLeft, Check, Sparkles } from "lucide-react"
 import { getProperties, type Property } from "@/lib/properties-data"
-import { cn } from "@/lib/utils"
+import { cn, formatPrice } from "@/lib/utils"
 
 export default function HomePage() {
   const [searchLocation, setSearchLocation] = useState("")
   const [propertyType, setPropertyType] = useState("all")
   const [category, setCategory] = useState("all")
   const [priceRange, setPriceRange] = useState("all")
-  const [featuredProperties, setFeaturedProperties] = useState<Property[]>([])
+  const [allProperties, setAllProperties] = useState<Property[]>([])
   const [premiumProperties, setPremiumProperties] = useState<Property[]>([])
-  const [sellProperties, setSellProperties] = useState<Property[]>([])
-  const [rentProperties, setRentProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<"featured" | "sale" | "rent" | "premium">("featured")
+  const [activeTab, setActiveTab] = useState<string>("")
   const [settings, setSettings] = useState<any>(null)
   const [currentPremiumIndex, setCurrentPremiumIndex] = useState(0)
   const [activeThumbIndex, setActiveThumbIndex] = useState(0)
@@ -50,8 +48,14 @@ export default function HomePage() {
       const response = await fetch("/api/settings")
       const data = await response.json()
       setSettings(data)
+      if (data.propertyCategories && data.propertyCategories.length > 0) {
+        setActiveTab(data.propertyCategories[0])
+      } else {
+        setActiveTab("For Sale")
+      }
     } catch (error) {
       console.error("Error fetching settings:", error)
+      setActiveTab("For Sale")
     }
   }
 
@@ -60,21 +64,13 @@ export default function HomePage() {
       setLoading(true)
       setError(null)
 
-      // Fetch featured properties from database
-      const featuredData = await getProperties({ featured: true, status: "active" })
-      setFeaturedProperties(featuredData.slice(0, 6))
+      // Fetch all active properties
+      const allData = await getProperties({ status: "active" })
+      setAllProperties(allData)
 
       // Fetch premium properties from database
       const premiumData = await getProperties({ best: true, status: "active" })
       setPremiumProperties(premiumData.slice(0, 3))
-
-      // Fetch sell properties
-      const sellData = await getProperties({ priceType: "sale", status: "active" })
-      setSellProperties(sellData.slice(0, 6))
-
-      // Fetch rent properties
-      const rentData = await getProperties({ priceType: "rent", status: "active" })
-      setRentProperties(rentData.slice(0, 6))
     } catch (error) {
       console.error("Error fetching properties:", error)
       setError("Failed to load properties. Please try again later.")
@@ -102,34 +98,26 @@ export default function HomePage() {
     window.location.href = `/listings${queryString ? `?${queryString}` : ""}`
   }
 
-  const showcaseContent = {
-    featured: {
-      heading: "Best Sellers",
-      subheading: "Top Rated Items",
-      description: "India's most-loved properties — chosen by 12,000+ happy homeowners. Handpicked for quality, value, and lifestyle.",
-      color: "text-gray-900 dark:text-white"
-    },
-    sale: {
-      heading: "Properties for Sale",
-      subheading: "Permanent Homes",
-      description: "Discover your dream home from our latest listings. From cozy apartments to luxury villas, find where you belong.",
-      color: "text-gray-900 dark:text-white"
-    },
-    rent: {
-      heading: "Properties for Rent",
-      subheading: "Flexible Stays",
-      description: "Looking for a temporary stay? Browse our curated list of rental properties in prime locations with flexible terms.",
-      color: "text-gray-900 dark:text-white"
-    },
-    premium: {
-      heading: "Premium Collection",
-      subheading: "Luxury Living",
-      description: "Exclusive luxury properties for the most discerning buyers. Experience the finest in real estate with exceptional amenities.",
-      color: "text-gray-900 dark:text-white"
-    }
+  const getCategoryValue = (cat: string) => cat.toLowerCase().replace("for ", "")
+
+  const getShowcaseHeader = (tab: string) => {
+    if (!tab) return { heading: "", description: "" }
+    const heading = tab.toLowerCase().startsWith("for ") ? `Properties ${tab.toLowerCase()}` : `${tab} Properties`
+    const formattedHeading = heading.charAt(0).toUpperCase() + heading.slice(1)
+    
+    let description = `Explore our premium selection of ${tab.toLowerCase()} properties built with exceptional amenities in prime locations.`
+    const val = tab.toLowerCase();
+    if (val.includes("sale")) description = "Discover your dream home from our latest listings. From cozy apartments to luxury villas, find where you belong.";
+    if (val.includes("rent")) description = "Looking for a temporary stay? Browse our curated list of rental properties in prime locations with flexible terms.";
+    if (val.includes("commercial")) description = "Exposing high-yield premium offices, showrooms, and industrial warehouses built for modern businesses.";
+    
+    return { heading: formattedHeading, description }
   }
 
-  const currentContent = showcaseContent[activeTab]
+  const currentContent = getShowcaseHeader(activeTab)
+  const activeTabFilteredProperties = allProperties.filter(
+    (p) => p.priceType === getCategoryValue(activeTab)
+  )
 
   return (
     <div className="min-h-screen bg-background text-gray-900 dark:text-white selection:bg-gray-200 selection:text-gray-900 font-sans">
@@ -332,7 +320,7 @@ export default function HomePage() {
                       <div className="space-y-1">
                         <p className="text-gray-500 text-sm font-sans">Pricing Start at</p>
                         <p className="text-2xl font-bold font-sans text-gray-900 dark:text-white">
-                          ${premiumProperties[currentPremiumIndex].price.toLocaleString()}
+                          {formatPrice(premiumProperties[currentPremiumIndex].price, settings?.activeCurrency)}
                         </p>
                       </div>
                       <Link href="/listings?priceType=premium" className="w-full">
@@ -381,8 +369,12 @@ export default function HomePage() {
               Loading Premium Collection...
             </div>
           ) : (
-            <div className="h-[600px] flex items-center justify-center text-gray-400 font-sans uppercase tracking-widest text-xs">
-              No Collection
+            <div className="py-[120px] text-center bg-white/50 dark:bg-gray-900/30 rounded-[36px] border border-dashed border-[#ececee] dark:border-gray-800">
+              <div className="relative w-48 h-48 mx-auto mb-6">
+                <Image src="/no-data.webp" alt="No properties" fill className="object-contain" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">No properties</h3>
+              <p className="text-gray-500 max-w-sm mx-auto leading-relaxed font-medium">We couldn&apos;t find any active listings in the Premium Collection. Check back later!</p>
             </div>
           )}
         </div>
@@ -454,10 +446,10 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex bg-gray-100 dark:bg-gray-900 p-1.5 rounded-full border border-gray-200/50 dark:border-gray-800">
-                {["featured", "sale", "rent", "premium"].map((tab) => (
+                {(settings?.propertyCategories || ["For Sale", "For Rent", "Commercial", "Residential"]).slice(0, 4).map((tab: string) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab as any)}
+                    onClick={() => setActiveTab(tab)}
                     className={cn(
                       "px-6 py-3 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all duration-300",
                       activeTab === tab
@@ -465,7 +457,7 @@ export default function HomePage() {
                         : "text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     )}
                   >
-                    {tab === "featured" ? "Featured" : tab === "sale" ? "For Sale" : tab === "rent" ? "For Rent" : "Premium"}
+                    {tab}
                   </button>
                 ))}
               </div>
@@ -485,16 +477,25 @@ export default function HomePage() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {(activeTab === "featured" ? featuredProperties : 
-                activeTab === "sale" ? sellProperties : 
-                activeTab === "rent" ? rentProperties : 
-                premiumProperties).slice(0, 6).map((property, idx) => (
-                <div key={property.id} className="animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both" style={{ animationDelay: `${idx * 150}ms` }}>
-                  <PropertyCard property={property} />
+            <>
+              {(activeTabFilteredProperties.length === 0) ? (
+                  <div className="py-[60px] text-center bg-[#f4f4f5] dark:bg-gray-900/50 rounded-[36px] border border-dashed border-[#ececee] dark:border-gray-800">
+                    <div className="relative w-48 h-48 mx-auto mb-6">
+                      <Image src="/no-data.webp" alt="No properties" fill className="object-contain" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">No properties</h3>
+                    <p className="text-gray-500 max-w-sm mx-auto leading-relaxed font-medium">We couldn&apos;t find any active listings in this category. Check back later!</p>
+                  </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                  {activeTabFilteredProperties.slice(0, 6).map((property, idx) => (
+                    <div key={property.id} className="animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both" style={{ animationDelay: `${idx * 150}ms` }}>
+                      <PropertyCard property={property} currency={settings?.activeCurrency} priority={idx < 2} typeAmenityConfigs={settings?.typeAmenityConfigs} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </section>
