@@ -26,6 +26,7 @@ export default function HomePage() {
   const [settings, setSettings] = useState<any>(null)
   const [currentPremiumIndex, setCurrentPremiumIndex] = useState(0)
   const [activeThumbIndex, setActiveThumbIndex] = useState(0)
+  const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   useEffect(() => {
@@ -42,6 +43,16 @@ export default function HomePage() {
       return () => clearInterval(interval)
     }
   }, [premiumProperties])
+
+  useEffect(() => {
+    const testimonials = settings?.testimonials
+    if (testimonials && testimonials.length > 1) {
+      const interval = setInterval(() => {
+        setTestimonialIndex((prev) => (prev + 1) % Math.min(testimonials.length, 10))
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [settings?.testimonials])
 
   const fetchSettings = async () => {
     try {
@@ -684,36 +695,108 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center bg-gray-50 dark:bg-gray-900 rounded-[4rem] overflow-hidden p-10 lg:p-20 border border-gray-100 dark:border-gray-800">
-            <div className="relative aspect-square rounded-[3rem] overflow-hidden">
-              <Image 
-                src={settings?.testimonials?.[0]?.image || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1974"} 
-                alt="Client" 
-                fill 
-                className="object-cover" 
-              />
-            </div>
-            <div className="space-y-10 lg:pl-10">
-              <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-xl">
-                <Tag className="w-8 h-8 text-gray-900 dark:text-white" />
-              </div>
-              <blockquote className="text-2xl md:text-3xl font-serif leading-snug">
-                &quot;{settings?.testimonials?.[0]?.quote || "Working with this team was a pleasure. They understood our vision and helped us find a property that exceeded our expectations. We couldn't have done it without them!"}&quot;
-              </blockquote>
-              <div>
-                <div className="text-xl font-bold">{settings?.testimonials?.[0]?.name || "Sophia Lorenza"}</div>
-                <div className="text-gray-500 font-medium">{settings?.testimonials?.[0]?.role || "CEO of LuxSpace"}</div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center cursor-pointer hover:bg-gray-900 dark:hover:bg-white hover:border-gray-900 dark:hover:border-white hover:text-white dark:hover:text-gray-900 transition-all">
-                  <ArrowLeft className="w-5 h-5" />
+          {(() => {
+            const testimonials = (settings?.testimonials || [
+              {
+                name: "Sophia Lorenza",
+                role: "CEO of LuxSpace",
+                quote: "Working with this team was a pleasure. They understood our vision and helped us find a property that exceeded our expectations. We couldn't have done it without them!",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400"
+              }
+            ]).slice(0, 10)
+
+            return (
+              <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-10 items-center bg-gray-50 dark:bg-gray-900 rounded-[4rem] overflow-hidden p-10 lg:p-20 border border-gray-100 dark:border-gray-800">
+                {/* Image panel */}
+                <div className="relative aspect-square rounded-[3rem] overflow-hidden">
+                  {testimonials.map((t, i) => (
+                    <div
+                      key={i}
+                      className="absolute inset-0 transition-all duration-700 ease-in-out"
+                      style={{
+                        opacity: testimonialIndex === i ? 1 : 0,
+                        transform: testimonialIndex === i ? "scale(1)" : "scale(1.04)",
+                        zIndex: testimonialIndex === i ? 1 : 0,
+                      }}
+                    >
+                      <Image
+                        src={t.image || `https://i.pravatar.cc/600?img=${i + 15}`}
+                        alt={t.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
                 </div>
-                <div className="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center cursor-pointer hover:bg-gray-900 dark:hover:bg-white hover:border-gray-900 dark:hover:border-white hover:text-white dark:hover:text-gray-900 transition-all">
-                  <ArrowRight className="w-5 h-5" />
+
+                {/* Content panel */}
+                <div className="space-y-10 lg:pl-10">
+                  <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-xl">
+                    <Tag className="w-8 h-8 text-gray-900 dark:text-white" />
+                  </div>
+
+                  <div className="relative min-h-[160px]">
+                    {testimonials.map((t, i) => (
+                      <div
+                        key={i}
+                        className="absolute inset-0 transition-all duration-700 ease-in-out"
+                        style={{
+                          opacity: testimonialIndex === i ? 1 : 0,
+                          transform: testimonialIndex === i ? "translateY(0)" : "translateY(16px)",
+                          pointerEvents: testimonialIndex === i ? "auto" : "none",
+                        }}
+                      >
+                        <blockquote className="text-2xl md:text-3xl font-serif leading-snug mb-8">
+                          &quot;{t.quote}&quot;
+                        </blockquote>
+                        <div>
+                          <div className="text-xl font-bold">{t.name}</div>
+                          <div className="text-gray-500 font-medium">{t.role}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Controls */}
+                  <div className="flex items-center gap-6 pt-4">
+                    <button
+                      onClick={() => setTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+                      className="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center cursor-pointer hover:bg-gray-900 dark:hover:bg-white hover:border-gray-900 dark:hover:border-white hover:text-white dark:hover:text-gray-900 transition-all"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setTestimonialIndex((prev) => (prev + 1) % testimonials.length)}
+                      className="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center cursor-pointer hover:bg-gray-900 dark:hover:bg-white hover:border-gray-900 dark:hover:border-white hover:text-white dark:hover:text-gray-900 transition-all"
+                    >
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+
+                    {/* Dot indicators */}
+                    <div className="flex items-center gap-2 ml-2">
+                      {testimonials.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setTestimonialIndex(i)}
+                          className={cn(
+                            "rounded-full transition-all duration-300",
+                            testimonialIndex === i
+                              ? "w-6 h-2.5 bg-gray-900 dark:bg-white"
+                              : "w-2.5 h-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-400"
+                          )}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Counter */}
+                    <span className="ml-auto text-sm font-bold text-gray-400 tabular-nums">
+                      {String(testimonialIndex + 1).padStart(2, "0")} / {String(testimonials.length).padStart(2, "0")}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            )
+          })()}
         </div>
       </section>
 
