@@ -69,9 +69,9 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
     "Walk-in Closet",
   ]
 
-  const currentFeaturesToShow = featureConfigs.length > 0
-    ? featureConfigs.filter(f => !f.associatedTypes || f.associatedTypes.length === 0 || f.associatedTypes.includes(formData.type))
-    : availableFeatures.map(f => ({ name: f, iconUrl: "" }))
+  const currentFeaturesToShow = featureConfigs.filter(f => 
+    f.associatedTypes && f.associatedTypes.some(t => t.toLowerCase() === formData.type.toLowerCase())
+  )
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== "admin") {
@@ -316,7 +316,7 @@ export default function EditPropertyPage({ params }: EditPropertyPageProps) {
                     </div>
 
                     <div>
-                      <Label htmlFor="price">Price ($)</Label>
+                      <Label htmlFor="price">Price ({settings?.activeCurrency?.symbol || "$"})</Label>
                       <Input
                         id="price"
                         type="number"

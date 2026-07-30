@@ -99,9 +99,9 @@ export default function AddPropertyPage() {
     "Basement",
   ]
 
-  const currentFeaturesToShow = featureConfigs.length > 0
-    ? featureConfigs.filter(f => !f.associatedTypes || f.associatedTypes.length === 0 || f.associatedTypes.includes(formData.type))
-    : availableFeatures.map(f => ({ name: f, iconUrl: "" }))
+  const currentFeaturesToShow = featureConfigs.filter(f => 
+    f.associatedTypes && f.associatedTypes.some(t => t.toLowerCase() === formData.type.toLowerCase())
+  )
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -145,27 +145,7 @@ export default function AddPropertyPage() {
           throw new Error(`File ${file.name} is too large. Maximum size is 5MB`)
         }
 
-        // Validate image dimensions (min 800x600px)
-        try {
-          const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-            const img = new window.Image()
-            img.src = URL.createObjectURL(file)
-            img.onload = () => {
-              resolve({ width: img.width, height: img.height })
-              URL.revokeObjectURL(img.src)
-            }
-            img.onerror = () => {
-              reject(new Error("Failed to load image for resolution validation"))
-              URL.revokeObjectURL(img.src)
-            }
-          })
 
-          if (dimensions.width < 800 || dimensions.height < 600) {
-            throw new Error(`File ${file.name} resolution is too low. Minimum dimensions are 800x600px. (Current: ${dimensions.width}x${dimensions.height}px)`)
-          }
-        } catch (err) {
-          throw new Error(err instanceof Error ? err.message : `Could not validate dimensions of file ${file.name}`)
-        }
 
         const filename = `property-${Date.now()}-${i}-${file.name}`
 
@@ -464,7 +444,7 @@ export default function AddPropertyPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="price">Price ($) *</Label>
+                  <Label htmlFor="price">Price ({settings?.activeCurrency?.symbol || "$"}) *</Label>
                   <Input
                     id="price"
                     type="number"

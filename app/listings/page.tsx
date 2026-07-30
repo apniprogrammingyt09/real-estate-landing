@@ -194,6 +194,13 @@ function ListingsContent() {
       filtered = filtered.filter((property) => property.bathrooms >= minBathrooms)
     }
 
+    // Filter by features (dynamic specifications)
+    if (filters.features && filters.features.length > 0) {
+      filtered = filtered.filter((property) =>
+        filters.features.every((feat: string) => property.features?.includes(feat))
+      )
+    }
+
     // Sort results
     switch (sortBy) {
       case "price-asc":
@@ -426,6 +433,44 @@ function ListingsContent() {
               </Button>
             </div>
           </div>
+
+          {/* Dynamic Features Filter */}
+          {settings?.featureConfigs && settings.featureConfigs.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-[#ececee] dark:border-gray-800 animate-in fade-in duration-200">
+              <p className="text-[10px] font-bold text-[#71717a] dark:text-gray-400 uppercase tracking-[0.15em] mb-4">Filter by Specifications & Amenities</p>
+              <div className="flex flex-wrap gap-2.5">
+                {settings.featureConfigs.map((feat: any) => {
+                  const isChecked = filters.features.includes(feat.name)
+                  return (
+                    <button
+                      key={feat.name}
+                      onClick={() => {
+                        const newFeatures = isChecked
+                          ? filters.features.filter((f: string) => f !== feat.name)
+                          : [...filters.features, feat.name]
+                        handleFilterChange("features", newFeatures)
+                      }}
+                      className={cn(
+                        "px-4 py-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2",
+                        isChecked
+                          ? "bg-gray-900 border-gray-900 text-white dark:bg-white dark:border-white dark:text-gray-900"
+                          : "bg-white border-[#ececee] text-gray-700 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-300 hover:border-gray-300"
+                      )}
+                    >
+                      {feat.iconUrl && (
+                        <img 
+                          src={feat.iconUrl} 
+                          alt="" 
+                          className={cn("w-4 h-4 object-contain", isChecked && "invert dark:invert-0")} 
+                        />
+                      )}
+                      {feat.name}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
