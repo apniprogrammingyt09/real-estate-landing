@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Loader2, Save, Plus, Check, Trash2, Sparkles } from "lucide-react"
+import { Loader2, Save, Plus, Check, Trash2, Sparkles, Edit } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function AdminFeaturesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   // Data States
   const [propertyTypes, setPropertyTypes] = useState<string[]>([])
@@ -160,6 +161,7 @@ export default function AdminFeaturesPage() {
       if (response.ok) {
         toast.success("Property features updated successfully")
         setSaved(true)
+        setIsEditing(false)
         setTimeout(() => setSaved(false), 3000)
       } else {
         toast.error("Failed to update property features")
@@ -191,9 +193,20 @@ export default function AdminFeaturesPage() {
 
       <Card className="rounded-[2rem] shadow-xl shadow-emerald-500/5 dark:shadow-none border border-gray-100 dark:border-gray-800">
         <CardHeader className="bg-gray-50/50 dark:bg-gray-900/50 border-b p-8 rounded-t-[2rem]">
-          <CardTitle className="text-xl font-serif flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-emerald-500" /> Amenities Config & Icons
-          </CardTitle>
+          <div className="flex items-center justify-between w-full">
+            <CardTitle className="text-xl font-serif flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-emerald-500" /> Amenities Config & Icons
+            </CardTitle>
+            <Button
+              variant={isEditing ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsEditing(!isEditing)}
+              className="rounded-xl gap-1 text-xs"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              {isEditing ? "Editing..." : "Edit / Delete"}
+            </Button>
+          </div>
           <CardDescription>Setup features linked with specific property types.</CardDescription>
         </CardHeader>
         <CardContent className="p-8 space-y-8">
@@ -318,13 +331,15 @@ export default function AdminFeaturesPage() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => removeFeature(idx)}
-                    className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
-                    title="Remove Feature"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {isEditing && (
+                    <button
+                      onClick={() => removeFeature(idx)}
+                      className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
+                      title="Remove Feature"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               ))}
 
@@ -336,25 +351,27 @@ export default function AdminFeaturesPage() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-6 border-t dark:border-gray-800">
-            <Button
-              onClick={saveFeatures}
-              disabled={saving}
-              className={cn(
-                "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
-                saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
-              )}
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : saved ? (
-                <Check className="w-4 h-4 mr-2" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              {saving ? "Saving..." : saved ? "Saved!" : "Save Property Features"}
-            </Button>
-          </div>
+          {isEditing && (
+            <div className="flex justify-end pt-6 border-t dark:border-gray-800 animate-in fade-in duration-200">
+              <Button
+                onClick={saveFeatures}
+                disabled={saving}
+                className={cn(
+                  "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
+                  saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
+                )}
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : saved ? (
+                  <Check className="w-4 h-4 mr-2" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                {saving ? "Saving..." : saved ? "Saved!" : "Save Property Features"}
+              </Button>
+            </div>
+          )}
 
         </CardContent>
       </Card>

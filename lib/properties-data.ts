@@ -130,19 +130,26 @@ export async function getAdminProperties(): Promise<{
   total: number
 }> {
   const response = await fetch("/api/admin/properties")
+  if (response.status === 401) {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("auth_user")
+      window.location.href = "/admin/login"
+    }
+    throw new Error("Unauthorized")
+  }
   if (!response.ok) {
     throw new Error("Failed to fetch admin properties")
   }
   return response.json()
 }
 
-export async function approveProperty(propertyId: number): Promise<void> {
+export async function approveProperty(propertyId: number, agentId?: string): Promise<void> {
   const response = await fetch("/api/admin/properties", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ action: "approve", propertyId }),
+    body: JSON.stringify({ action: "approve", propertyId, agentId }),
   })
 
   if (!response.ok) {

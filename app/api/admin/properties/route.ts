@@ -1,8 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
+import { verifyRole } from "@/lib/jwt"
 
 export async function GET() {
   try {
+    const user = await verifyRole("admin")
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const allProperties = await db.getProperties()
     const activeProperties = allProperties.filter((p) => p.status === "active")
     const pendingProperties = allProperties.filter((p) => p.status === "pending")
@@ -22,6 +28,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await verifyRole("admin")
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const body = await request.json()
     const { action, agentId, featured, best, flags, reason } = body
     const propertyId = body.propertyId !== undefined ? Number(body.propertyId) : undefined
@@ -34,7 +45,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Property ID is required" }, { status: 400 })
         }
 
-        const approvedProperty = await db.approveProperty(propertyId)
+        const approvedProperty = await db.approveProperty(propertyId, agentId)
         if (!approvedProperty) {
           return NextResponse.json({ error: "Property not found or already processed" }, { status: 404 })
         }

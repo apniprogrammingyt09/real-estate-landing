@@ -49,7 +49,7 @@ export function AgentAuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch("/api/agents/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,6 +76,7 @@ export function AgentAuthProvider({ children }: { children: React.ReactNode }) {
     setAgent(null)
     setIsAuthenticated(false)
     localStorage.removeItem("agent_user")
+    fetch("/api/auth/logout", { method: "POST" }).catch(console.error)
   }
 
   const refreshAgent = () => {

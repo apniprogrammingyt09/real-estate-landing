@@ -29,7 +29,7 @@ export default function NotFound() {
         
         {/* Luxury Badge Accent */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/50 dark:border-emerald-900/50 text-[#0E4B3E] dark:text-[#bc9d6a] text-[10px] font-bold uppercase tracking-[0.2em] shadow-sm">
-          <Compass className="w-4 h-4 animate-spin duration-[10s]" />
+          <Compass className="w-4 h-4 animate-spin [animation-duration:10s]" />
           Lost in Splendor
         </div>
 

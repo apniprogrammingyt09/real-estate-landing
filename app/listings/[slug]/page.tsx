@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
@@ -42,6 +43,49 @@ interface PropertyPageProps {
   params: Promise<{ slug: string }>
 }
 
+export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const property = await getPropertyBySlugServer(slug)
+  if (!property) {
+    return {
+      title: "Property Not Found",
+    }
+  }
+
+  const title = `${property.title} | Premium Real Estate`
+  const description = property.description ? property.description.substring(0, 155) + "..." : `Explore ${property.title} located at ${property.address}.`
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://realestate.com"
+  const canonicalUrl = `${siteUrl}/listings/${slug}`
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: "website",
+      images: property.images && property.images.length > 0 ? [
+        {
+          url: property.images[0],
+          width: 1200,
+          height: 630,
+          alt: property.title,
+        }
+      ] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: property.images && property.images.length > 0 ? [property.images[0]] : [],
+    }
+  }
+}
+
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { slug } = await params
   const property = await getPropertyBySlugServer(slug)
@@ -52,8 +96,46 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
   const settings = await db.getSettings()
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SingleFamilyResidence",
+    "name": property.title,
+    "description": property.description,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": property.address,
+      "addressLocality": property.neighborhood || "",
+      "addressRegion": property.location?.address || ""
+    },
+    "geo": property.location ? {
+      "@type": "GeoCoordinates",
+      "latitude": property.location.lat,
+      "longitude": property.location.lng
+    } : undefined,
+    "image": property.images && property.images[0],
+    "offers": {
+      "@type": "Offer",
+      "price": property.price,
+      "priceCurrency": settings?.activeCurrency?.code || "INR",
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": property.price,
+        "priceCurrency": settings?.activeCurrency?.code || "INR",
+        "referenceQuantity": property.priceType === "rent" ? {
+          "@type": "QuantitativeValue",
+          "value": "1",
+          "unitCode": "MON"
+        } : undefined
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f4f5] font-sans selection:bg-[#ececee] selection:text-[#09090b]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
 
       {/* Main Container */}
@@ -147,9 +229,9 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
               {/* Header: Title, Address & Bookmark */}
               <div className="flex justify-between items-start gap-4">
                 <div className="space-y-2">
-                  <p className="text-[15px] font-semibold text-[#09090b] leading-[1.45]">
+                  <h1 className="text-[20px] font-semibold text-[#09090b] leading-[1.45]">
                     {property.title}
-                  </p>
+                  </h1>
                   <p className="text-[14px] text-[#71717a] flex items-center">
                     <MapPin className="w-4 h-4 mr-1 text-[#52525b] flex-shrink-0" />
                     {property.address}

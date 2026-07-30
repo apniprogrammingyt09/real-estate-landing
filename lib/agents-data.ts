@@ -1,5 +1,21 @@
-import type { Agent } from "./db"
-export type { Agent }
+export interface Agent {
+  id: string
+  name: string
+  email: string
+  phone: string
+  role: string
+  specialization: string
+  experience: string
+  bio?: string
+  licenseNumber: string
+  languages?: string
+  status: "active" | "inactive"
+  avatar?: string
+  joinedDate: string
+  rating: number
+  propertiesCount: number
+  createdAt: string
+}
 
 // Client-side data fetching functions for agents
 export async function getAgents(): Promise<Agent[]> {

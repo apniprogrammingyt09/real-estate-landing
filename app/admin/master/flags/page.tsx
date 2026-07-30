@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Loader2, Save, Plus, Check, Trash2, Tag } from "lucide-react"
+import { Loader2, Save, Plus, Check, Trash2, Tag, Edit } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function AdminPropertyFlagsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   // Property Flags State
   const [propertyFlags, setPropertyFlags] = useState<string[]>([])
@@ -67,8 +68,9 @@ export default function AdminPropertyFlagsPage() {
       })
 
       if (response.ok) {
-        toast.success("Property promotional flags updated successfully")
+        toast.success("Property flags updated successfully")
         setSaved(true)
+        setIsEditing(false)
         setTimeout(() => setSaved(false), 3000)
       } else {
         toast.error("Failed to update property flags")
@@ -100,9 +102,20 @@ export default function AdminPropertyFlagsPage() {
 
       <Card className="rounded-[2rem] shadow-xl shadow-emerald-500/5 dark:shadow-none border border-gray-100 dark:border-gray-800">
         <CardHeader className="bg-gray-50/50 dark:bg-gray-900/50 border-b p-8 rounded-t-[2rem]">
-          <CardTitle className="text-xl font-serif flex items-center gap-3">
-            <Tag className="w-5 h-5 text-emerald-500" /> Promotional Tags & Flags
-          </CardTitle>
+          <div className="flex items-center justify-between w-full">
+            <CardTitle className="text-xl font-serif flex items-center gap-3">
+              <Tag className="w-5 h-5 text-emerald-500" /> Promotional Tags & Flags
+            </CardTitle>
+            <Button
+              variant={isEditing ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsEditing(!isEditing)}
+              className="rounded-xl gap-1 text-xs"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              {isEditing ? "Editing..." : "Edit / Delete"}
+            </Button>
+          </div>
           <CardDescription>Configure the dynamic display labels for premium listings.</CardDescription>
         </CardHeader>
         <CardContent className="p-8 space-y-8">
@@ -137,37 +150,41 @@ export default function AdminPropertyFlagsPage() {
                     {flag}
                   </span>
                   
-                  <button 
-                    onClick={() => removePropertyFlag(flag)}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
-                    title="Delete Flag"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {isEditing && (
+                    <button 
+                      onClick={() => removePropertyFlag(flag)}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
+                      title="Delete Flag"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex justify-end pt-6 border-t dark:border-gray-800">
-            <Button 
-              onClick={saveFlags}
-              disabled={saving}
-              className={cn(
-                "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
-                saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
-              )}
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : saved ? (
-                <Check className="w-4 h-4 mr-2" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              {saving ? "Saving..." : saved ? "Saved!" : "Save Property Flags"}
-            </Button>
-          </div>
+          {isEditing && (
+            <div className="flex justify-end pt-6 border-t dark:border-gray-800 animate-in fade-in duration-200">
+              <Button 
+                onClick={saveFlags}
+                disabled={saving}
+                className={cn(
+                  "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
+                  saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
+                )}
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : saved ? (
+                  <Check className="w-4 h-4 mr-2" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                {saving ? "Saving..." : saved ? "Saved!" : "Save Property Flags"}
+              </Button>
+            </div>
+          )}
 
         </CardContent>
       </Card>

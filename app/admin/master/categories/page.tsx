@@ -6,16 +6,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Loader2, Save, Plus, Check, Layers } from "lucide-react"
+import { Loader2, Save, Plus, Check, Layers, Edit } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function AdminPropertyCategoriesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   // Property Categories State
   const [propertyCategories, setPropertyCategories] = useState<string[]>([])
+  const [originalCategories, setOriginalCategories] = useState<string[]>([])
   const [newCategoryInput, setNewCategoryInput] = useState("")
 
   useEffect(() => {
@@ -28,6 +30,7 @@ export default function AdminPropertyCategoriesPage() {
       const data = await response.json()
       if (data.propertyCategories) {
         setPropertyCategories(data.propertyCategories)
+        setOriginalCategories(data.propertyCategories)
       }
     } catch (error) {
       console.error("Error fetching settings:", error)
@@ -67,6 +70,8 @@ export default function AdminPropertyCategoriesPage() {
       if (response.ok) {
         toast.success("Property categories updated successfully")
         setSaved(true)
+        setOriginalCategories(propertyCategories)
+        setIsEditing(false)
         setTimeout(() => setSaved(false), 3000)
       } else {
         toast.error("Failed to update property categories")
@@ -78,6 +83,9 @@ export default function AdminPropertyCategoriesPage() {
       setSaving(false)
     }
   }
+
+  const hasUnsavedChanges = JSON.stringify(propertyCategories) !== JSON.stringify(originalCategories)
+  const showSave = isEditing || hasUnsavedChanges
 
   if (loading) {
     return (
@@ -98,9 +106,20 @@ export default function AdminPropertyCategoriesPage() {
 
       <Card className="rounded-[2rem] shadow-xl shadow-emerald-500/5 dark:shadow-none border border-gray-100 dark:border-gray-800">
         <CardHeader className="bg-gray-50/50 dark:bg-gray-900/50 border-b p-8 rounded-t-[2rem]">
-          <CardTitle className="text-xl font-serif flex items-center gap-3">
-            <Layers className="w-5 h-5 text-emerald-500" /> Active Taxonomy Categories
-          </CardTitle>
+          <div className="flex items-center justify-between w-full">
+            <CardTitle className="text-xl font-serif flex items-center gap-3">
+              <Layers className="w-5 h-5 text-emerald-500" /> Active Taxonomy Categories
+            </CardTitle>
+            <Button
+              variant={isEditing ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsEditing(!isEditing)}
+              className="rounded-xl gap-1 text-xs"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              {isEditing ? "Editing..." : "Edit / Delete"}
+            </Button>
+          </div>
           <CardDescription>Create or remove listing categories.</CardDescription>
         </CardHeader>
         <CardContent className="p-8 space-y-8">
@@ -129,12 +148,14 @@ export default function AdminPropertyCategoriesPage() {
                 {propertyCategories.map((cat, idx) => (
                   <span key={idx} className="inline-flex items-center gap-2 pl-4 pr-2.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border text-sm font-semibold text-gray-700 dark:text-gray-300">
                     {cat}
-                    <button 
-                      onClick={() => removePropertyCategory(cat)}
-                      className="w-5 h-5 rounded-lg bg-gray-200/50 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <Plus className="w-3.5 h-3.5 rotate-45" />
-                    </button>
+                    {isEditing && (
+                      <button 
+                        onClick={() => removePropertyCategory(cat)}
+                        className="w-5 h-5 rounded-lg bg-gray-200/50 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5 rotate-45" />
+                      </button>
+                    )}
                   </span>
                 ))}
                 {propertyCategories.length === 0 && (
@@ -144,25 +165,27 @@ export default function AdminPropertyCategoriesPage() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-6 border-t dark:border-gray-800">
-            <Button 
-              onClick={saveCategories}
-              disabled={saving}
-              className={cn(
-                "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
-                saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
-              )}
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : saved ? (
-                <Check className="w-4 h-4 mr-2" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              {saving ? "Saving..." : saved ? "Saved!" : "Save Property Categories"}
-            </Button>
-          </div>
+          {showSave && (
+            <div className="flex justify-end pt-6 border-t dark:border-gray-800 animate-in fade-in duration-200">
+              <Button 
+                onClick={saveCategories}
+                disabled={saving}
+                className={cn(
+                  "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
+                  saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
+                )}
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : saved ? (
+                  <Check className="w-4 h-4 mr-2" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                {saving ? "Saving..." : saved ? "Saved!" : "Save Property Categories"}
+              </Button>
+            </div>
+          )}
 
         </CardContent>
       </Card>

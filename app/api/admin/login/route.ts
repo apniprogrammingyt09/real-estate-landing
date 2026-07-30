@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
+import { signJWT } from "@/lib/jwt"
+import { cookies } from "next/headers"
 
 export async function POST(request: Request) {
   try {
@@ -18,9 +20,27 @@ export async function POST(request: Request) {
     // Don't send password in response
     const { password: _, ...adminData } = admin
 
+    // Create JWT
+    const token = await signJWT({
+      id: admin.id,
+      email: admin.email,
+      role: "admin",
+    })
+
+    // Set cookie
+    const cookieStore = await cookies()
+    cookieStore.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 86400,
+      path: "/",
+    })
+
     return NextResponse.json({
       ...adminData,
       role: "admin",
+      token, // Also send in body just in case
     })
   } catch (error) {
     console.error("Admin login error:", error)

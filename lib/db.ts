@@ -2,12 +2,30 @@ import { ObjectId } from "mongodb"
 import { getDatabase } from "./mongodb"
 import bcrypt from "bcryptjs"
 
-// Helper to optimize existing Cloudinary URLs on the fly
-function optimizeCloudinaryUrls(images: string[] = []): string[] {
+// Helper to optimize image URLs on the fly (Cloudinary and Unsplash CDNs)
+function optimizeImageUrls(images: string[] = []): string[] {
   return images.map((url) => {
+    if (!url) return "/placeholder.svg"
+    
+    // Cloudinary optimization
     if (url.includes("res.cloudinary.com") && url.includes("/upload/") && !url.includes("q_auto")) {
       return url.replace("/upload/", "/upload/c_scale,w_800/q_auto/")
     }
+    
+    // Unsplash optimization
+    if (url.includes("images.unsplash.com")) {
+      try {
+        const urlObj = new URL(url)
+        urlObj.searchParams.set("w", "600")
+        urlObj.searchParams.set("q", "70")
+        urlObj.searchParams.set("auto", "format")
+        urlObj.searchParams.set("fit", "crop")
+        return urlObj.toString()
+      } catch (e) {
+        return url
+      }
+    }
+    
     return url
   })
 }
@@ -207,25 +225,29 @@ class MongoDatabase {
     try {
       const db = await getDatabase()
 
-      // Create default admin user if none exists
-      const adminExists = await db.collection("admins").findOne({ email: "admin@admin.com" })
-      if (!adminExists) {
-        const hashedPassword = await bcrypt.hash("admin123", 12)
-        const defaultAdmin: Admin = {
-          id: "admin-1",
-          name: "System Administrator",
-          email: "admin@admin.com",
-          password: hashedPassword,
-          role: "admin",
-          phone: "+1234567890",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-        await db.collection("admins").insertOne(defaultAdmin)
-        console.log("Default admin user created")
-      }
+      // Run index creation in background to avoid blocking API requests
+      Promise.all([
+        db.collection("properties").createIndex({ id: 1 }, { unique: true }),
+        db.collection("properties").createIndex({ slug: 1 }, { unique: true }),
+        db.collection("properties").createIndex({ status: 1 }),
+        db.collection("properties").createIndex({ agentId: 1 }),
+        db.collection("properties").createIndex({ priceType: 1 }),
+        db.collection("properties").createIndex({ type: 1 }),
+        db.collection("properties").createIndex({ featured: 1 }),
+        db.collection("properties").createIndex({ best: 1 }),
+        
+        db.collection("users").createIndex({ id: 1 }, { unique: true }),
+        db.collection("users").createIndex({ email: 1 }, { unique: true }),
+        db.collection("users").createIndex({ role: 1 }),
+      ]).then(() => {
+        console.log("Database indexes verified/created successfully.")
+      }).catch(err => {
+        console.warn("Non-blocking warning: Failed to verify/create database indexes:", err)
+      })
 
       this.initialized = true
+      const globalWithInit = globalThis as any
+      globalWithInit._mongoDbInitialized = true
     } catch (error) {
       console.error("Failed to initialize database:", error)
       throw error
@@ -233,14 +255,16 @@ class MongoDatabase {
   }
 
   private async ensureInitialized() {
-    if (this.initialized) return
+    const globalWithInit = globalThis as any
+    if (this.initialized || globalWithInit._mongoDbInitialized) {
+      this.initialized = true
+      return
+    }
 
     try {
       await this.initializeDatabase()
-      this.initialized = true
     } catch (error) {
       console.error("Failed to initialize database:", error)
-      // Don't throw here, let individual operations handle their own errors
     }
   }
 
@@ -292,7 +316,7 @@ class MongoDatabase {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      const admin = await db.collection("admins").findOne({ email })
+      const admin = await db.collection("users").findOne({ email, role: "admin" })
       return admin ? ({ ...admin, _id: undefined } as Admin) : null
     } catch (error) {
       console.error("Error fetching admin:", error)
@@ -304,7 +328,7 @@ class MongoDatabase {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      const admin = await db.collection("admins").findOne({ id })
+      const admin = await db.collection("users").findOne({ id, role: "admin" })
       return admin ? ({ ...admin, _id: undefined } as Admin) : null
     } catch (error) {
       console.error("Error fetching admin by ID:", error)
@@ -323,8 +347,8 @@ class MongoDatabase {
       }
 
       const result = await db
-        .collection("admins")
-        .findOneAndUpdate({ id }, { $set: updatedAdmin }, { returnDocument: "after" })
+        .collection("users")
+        .findOneAndUpdate({ id, role: "admin" }, { $set: updatedAdmin }, { returnDocument: "after" })
 
       return result ? ({ ...result, _id: undefined } as Admin) : null
     } catch (error) {
@@ -340,8 +364,8 @@ class MongoDatabase {
 
       const hashedPassword = await bcrypt.hash(newPassword, 12)
 
-      const result = await db.collection("admins").updateOne(
-        { id },
+      const result = await db.collection("users").updateOne(
+        { id, role: "admin" },
         {
           $set: {
             password: hashedPassword,
@@ -382,7 +406,7 @@ class MongoDatabase {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      const agents = await db.collection("agents").find({}).sort({ createdAt: -1 }).toArray()
+      const agents = await db.collection("users").find({ role: "agent" }).sort({ createdAt: -1 }).toArray()
       return agents.map((agent) => ({ ...agent, _id: undefined })) as Agent[]
     } catch (error) {
       console.error("Error fetching agents:", error)
@@ -394,7 +418,7 @@ class MongoDatabase {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      const agent = await db.collection("agents").findOne({ id })
+      const agent = await db.collection("users").findOne({ id, role: "agent" })
       return agent ? ({ ...agent, _id: undefined } as Agent) : null
     } catch (error) {
       console.error("Error fetching agent:", error)
@@ -406,7 +430,7 @@ class MongoDatabase {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      const agent = await db.collection("agents").findOne({ email })
+      const agent = await db.collection("users").findOne({ email, role: "agent" })
       return agent ? ({ ...agent, _id: undefined } as Agent) : null
     } catch (error) {
       console.error("Error fetching agent by email:", error)
@@ -441,8 +465,8 @@ class MongoDatabase {
 
       const hashedPassword = await bcrypt.hash(newPassword, 12)
 
-      const result = await db.collection("agents").updateOne(
-        { id },
+      const result = await db.collection("users").updateOne(
+        { id, role: "agent" },
         {
           $set: {
             password: hashedPassword,
@@ -466,7 +490,7 @@ class MongoDatabase {
       const db = await getDatabase()
 
       // Check if email already exists
-      const existingAgent = await db.collection("agents").findOne({ email: agentData.email })
+      const existingAgent = await db.collection("users").findOne({ email: agentData.email })
       if (existingAgent) {
         throw new Error("Agent with this email already exists")
       }
@@ -483,13 +507,14 @@ class MongoDatabase {
         ...agentData,
         id: id.toString(),
         password: hashedPassword,
+        role: "agent",
         propertiesCount: 0,
         rating: agentData.rating || 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
 
-      await db.collection("agents").insertOne(agent)
+      await db.collection("users").insertOne(agent)
 
       // Add activity
       await this.addActivity({
@@ -512,7 +537,7 @@ class MongoDatabase {
 
       // If email is being updated, check for duplicates
       if (updates.email) {
-        const existingAgent = await db.collection("agents").findOne({ email: updates.email, id: { $ne: id } })
+        const existingAgent = await db.collection("users").findOne({ email: updates.email, id: { $ne: id } })
         if (existingAgent) {
           throw new Error("Agent with this email already exists")
         }
@@ -524,8 +549,8 @@ class MongoDatabase {
       }
 
       const result = await db
-        .collection("agents")
-        .findOneAndUpdate({ id }, { $set: updatedAgent }, { returnDocument: "after" })
+        .collection("users")
+        .findOneAndUpdate({ id, role: "agent" }, { $set: updatedAgent }, { returnDocument: "after" })
 
       return result ? ({ ...result, _id: undefined } as Agent) : null
     } catch (error) {
@@ -551,7 +576,7 @@ class MongoDatabase {
         },
       )
 
-      const result = await db.collection("agents").deleteOne({ id })
+      const result = await db.collection("users").deleteOne({ id, role: "agent" })
 
       if (result.deletedCount > 0) {
         await this.updateAgentPropertyCounts()
@@ -587,7 +612,7 @@ class MongoDatabase {
       return properties.map((property) => ({
         ...property,
         _id: undefined,
-        images: optimizeCloudinaryUrls(property.images || []),
+        images: optimizeImageUrls(property.images || []),
       })) as Property[]
     } catch (error) {
       console.error("Error fetching properties:", error)
@@ -604,7 +629,7 @@ class MongoDatabase {
       return {
         ...property,
         _id: undefined,
-        images: optimizeCloudinaryUrls(property.images || []),
+        images: optimizeImageUrls(property.images || []),
       } as Property
     } catch (error) {
       console.error("Error fetching property:", error)
@@ -621,7 +646,7 @@ class MongoDatabase {
       return {
         ...property,
         _id: undefined,
-        images: optimizeCloudinaryUrls(property.images || []),
+        images: optimizeImageUrls(property.images || []),
       } as Property
     } catch (error) {
       console.error("Error fetching property by slug:", error)
@@ -713,11 +738,11 @@ class MongoDatabase {
     }
   }
 
-  async approveProperty(id: number): Promise<Property | null> {
+  async approveProperty(id: number, agentId?: string): Promise<Property | null> {
     try {
       await this.ensureInitialized()
       const db = await getDatabase()
-      console.log("Approving property:", id)
+      console.log("Approving property:", id, "with agent:", agentId)
       const property = await db.collection("properties").findOne({ id })
 
       if (!property) {
@@ -731,16 +756,25 @@ class MongoDatabase {
       }
 
       const propertyId = `PR-${String(await this.getNextPropertyNumber()).padStart(4, "0")}`
-
-      const updatedProperty = await this.updateProperty(id, {
+      const updates: Partial<Property> = {
         status: "active",
         propertyId,
-      })
+      }
+
+      if (agentId) {
+        const agent = await db.collection("users").findOne({ id: agentId, role: "agent" })
+        if (agent) {
+          updates.agentId = agentId
+          updates.agentName = agent.name
+        }
+      }
+
+      const updatedProperty = await this.updateProperty(id, updates)
 
       if (updatedProperty) {
         await this.addActivity({
           type: "property_approved",
-          message: `Property '${updatedProperty.title}' was approved`,
+          message: `Property '${updatedProperty.title}' was approved${agentId ? ` and assigned to ${updatedProperty.agentName}` : ""}`,
           propertyId: id,
         })
       }
@@ -788,7 +822,7 @@ class MongoDatabase {
         return false
       }
       const property = await db.collection("properties").findOne({ id: numericId })
-      const agent = await db.collection("agents").findOne({ id: agentId })
+      const agent = await db.collection("users").findOne({ id: agentId, role: "agent" })
 
       console.log("assignAgentToProperty lookup:", { numericId, propertyFound: !!property, agentFound: !!agent })
 
@@ -811,11 +845,11 @@ class MongoDatabase {
   private async updateAgentPropertyCounts() {
     try {
       const db = await getDatabase()
-      const agents = await db.collection("agents").find({}).toArray()
+      const agents = await db.collection("users").find({ role: "agent" }).toArray()
 
       for (const agent of agents) {
         const propertyCount = await db.collection("properties").countDocuments({ agentId: agent.id })
-        await db.collection("agents").updateOne({ id: agent.id }, { $set: { propertiesCount: propertyCount } })
+        await db.collection("users").updateOne({ id: agent.id, role: "agent" }, { $set: { propertiesCount: propertyCount } })
       }
     } catch (error) {
       console.error("Error updating agent property counts:", error)
@@ -887,8 +921,8 @@ class MongoDatabase {
         db.collection("properties").countDocuments(),
         db.collection("properties").countDocuments({ status: "active" }),
         db.collection("properties").countDocuments({ status: "pending" }),
-        db.collection("agents").countDocuments(),
-        db.collection("agents").countDocuments({ status: "active" }),
+        db.collection("users").countDocuments({ role: "agent" }),
+        db.collection("users").countDocuments({ role: "agent", status: "active" }),
         db.collection("properties").countDocuments({ featured: true }),
         db.collection("contacts").countDocuments(),
         db.collection("contacts").countDocuments({ status: "new" }),

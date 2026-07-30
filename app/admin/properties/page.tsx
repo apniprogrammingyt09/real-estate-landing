@@ -23,6 +23,8 @@ import {
   Edit,
   Trash2,
   AlertTriangle,
+  Settings2,
+  Check,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -58,6 +60,10 @@ export default function PropertiesPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("all")
   const [actionLoading, setActionLoading] = useState<{ [key: number]: string }>({})
+  const [approvalAgents, setApprovalAgents] = useState<Record<number, string>>({})
+  const [editingProperties, setEditingProperties] = useState<Record<number, boolean>>({})
+  const [draftAgents, setDraftAgents] = useState<Record<number, string>>({})
+  const [draftFlags, setDraftFlags] = useState<Record<number, string[]>>({})
   
   // Rejection Form states
   const [showRejectionForm, setShowRejectionForm] = useState<{ [key: number]: boolean }>({})
@@ -99,7 +105,9 @@ export default function PropertiesPage() {
   const handleApprove = async (propertyId: number) => {
     setActionLoading((prev) => ({ ...prev, [propertyId]: "approve" }))
     try {
-      await approveProperty(propertyId)
+      const selectedAgentId = approvalAgents[propertyId]
+      const agentIdParam = selectedAgentId && selectedAgentId !== "none" ? selectedAgentId : undefined
+      await approveProperty(propertyId, agentIdParam)
       toast({
         title: "Success",
         description: "Property approved successfully",
@@ -200,6 +208,62 @@ export default function PropertiesPage() {
       toast({
         title: "Error",
         description: "Failed to assign agent",
+        variant: "destructive",
+      })
+    } finally {
+      setActionLoading((prev) => {
+        const newLoading = { ...prev }
+        delete newLoading[propertyId]
+        return newLoading
+      })
+    }
+  }
+
+  const startEditing = (property: Property) => {
+    setDraftAgents(prev => ({ ...prev, [property.id]: property.agentId || "none" }))
+    const initialFlags = property.flags || [
+      ...(property.featured ? ["Featured"] : []),
+      ...(property.best ? ["Premium"] : [])
+    ]
+    setDraftFlags(prev => ({ ...prev, [property.id]: initialFlags }))
+    setEditingProperties(prev => ({ ...prev, [property.id]: true }))
+  }
+
+  const handleDoneEditing = async (propertyId: number) => {
+    setActionLoading((prev) => ({ ...prev, [propertyId]: "saving" }))
+    try {
+      const selectedAgentId = draftAgents[propertyId] || "none"
+      const selectedFlags = draftFlags[propertyId] || []
+      
+      const originalProperty = [...activeProperties, ...pendingProperties, ...rejectedProperties].find(p => p.id === propertyId)
+      const originalAgentId = originalProperty?.agentId || "none"
+      
+      // 1. Update agent if changed
+      if (selectedAgentId !== originalAgentId) {
+        const targetAgentId = selectedAgentId === "none" ? "" : selectedAgentId
+        await assignAgentToProperty(propertyId, targetAgentId)
+      }
+      
+      // 2. Update flags/tags
+      const isFeatured = selectedFlags.includes("Featured")
+      const isPremium = selectedFlags.includes("Premium")
+      await updatePropertyTags(propertyId, { 
+        featured: isFeatured,
+        best: isPremium,
+        flags: selectedFlags
+      })
+
+      toast({
+        title: "Success",
+        description: "Property updated successfully",
+      })
+      setEditingProperties(prev => ({ ...prev, [propertyId]: false }))
+      await fetchData()
+    } catch (error) {
+      console.error("Error saving edits:", error)
+      toast({
+        title: "Error",
+        description: "Failed to save updates",
         variant: "destructive",
       })
     } finally {
@@ -385,19 +449,133 @@ export default function PropertiesPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Agent Assignment Selection */}
               {isActive && (
+                <>
+                  {editingProperties[property.id] ? (
+                    // EDIT MODE
+                    <div className="flex flex-wrap items-center gap-4 bg-gray-50 dark:bg-gray-900/50 p-3 rounded-2xl border dark:border-gray-800 animate-in fade-in duration-200">
+                      {/* Agent Selection */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-gray-400">Agent:</span>
+                        <Select
+                          value={draftAgents[property.id] || "none"}
+                          onValueChange={(value) => setDraftAgents(prev => ({ ...prev, [property.id]: value }))}
+                        >
+                          <SelectTrigger className="w-[140px] rounded-xl h-9 text-xs bg-white dark:bg-gray-950">
+                            <SelectValue placeholder="Unassigned" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl">
+                            <SelectItem value="none">None</SelectItem>
+                            {agents.map((agent) => (
+                              <SelectItem key={agent.id} value={agent.id}>
+                                {agent.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Flags Toggles */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {(settings?.propertyFlags || ["Featured", "Premium"]).map((flag: string) => {
+                          const isChecked = (draftFlags[property.id] || []).includes(flag)
+                          
+                          return (
+                            <Button
+                              key={flag}
+                              size="sm"
+                              variant={isChecked ? "default" : "outline"}
+                              className="h-9 px-3 rounded-xl text-xs gap-1"
+                              onClick={() => {
+                                const currentFlags = draftFlags[property.id] || []
+                                const newFlags = isChecked
+                                  ? currentFlags.filter(f => f !== flag)
+                                  : [...currentFlags, flag]
+                                setDraftFlags(prev => ({ ...prev, [property.id]: newFlags }))
+                              }}
+                            >
+                              {flag === "Featured" && <Star className={cn("h-3.5 w-3.5", isChecked && "fill-current")} />}
+                              {flag}
+                            </Button>
+                          )
+                        })}
+                      </div>
+
+                      {/* Done Button */}
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => handleDoneEditing(property.id)}
+                        disabled={actionLoading[property.id] === "saving"}
+                        className="h-9 px-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                      >
+                        {actionLoading[property.id] === "saving" ? "Saving..." : "Done"}
+                      </Button>
+                    </div>
+                  ) : (
+                    // DISPLAY MODE
+                    <div className="flex items-center gap-4 animate-in fade-in duration-200">
+                      {/* Agent name display */}
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <span className="font-bold text-gray-400">Agent:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                           {property.agentName || "Unassigned"}
+                        </span>
+                      </div>
+
+                      {/* Active Badges */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {property.flags && property.flags.length > 0 ? (
+                          property.flags.map((flag) => (
+                            <span
+                              key={flag}
+                              className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border dark:border-gray-700/60"
+                            >
+                              {flag}
+                            </span>
+                          ))
+                        ) : (
+                          <>
+                            {property.featured && (
+                              <span className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border dark:border-gray-700/60">
+                                Featured
+                              </span>
+                            )}
+                            {property.best && (
+                              <span className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border dark:border-gray-700/60">
+                                Premium
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      {/* Settings Edit Trigger */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => startEditing(property)}
+                        className="h-8 w-8 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                      >
+                        <Settings2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Approval controls for Pending listings */}
+              {isPending && !showRejectionForm[property.id] && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-400">Agent:</span>
                   <Select
-                    value={property.agentId || "none"}
-                    onValueChange={(value) => handleAssignAgent(property.id, value)}
+                    value={approvalAgents[property.id] || "none"}
+                    onValueChange={(value) => setApprovalAgents(prev => ({ ...prev, [property.id]: value }))}
                   >
-                    <SelectTrigger className="w-[140px] rounded-xl h-9">
-                      <SelectValue placeholder="Unassigned" />
+                    <SelectTrigger className="w-[140px] rounded-xl h-9 text-xs bg-white dark:bg-gray-950">
+                      <SelectValue placeholder="Assign Agent..." />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
-                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="none">No Agent</SelectItem>
                       {agents.map((agent) => (
                         <SelectItem key={agent.id} value={agent.id}>
                           {agent.name}
@@ -405,74 +583,7 @@ export default function PropertiesPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-              )}
 
-              {/* Dynamic Tag Controls for Active listings */}
-              {isActive && (
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {(settings?.propertyFlags || ["Featured", "Premium"]).map((flag: string) => {
-                    const isChecked = property.flags?.includes(flag) || 
-                      (flag === "Featured" && property.featured) || 
-                      (flag === "Premium" && property.best)
-                    
-                    return (
-                      <Button
-                        key={flag}
-                        size="sm"
-                        variant={isChecked ? "default" : "outline"}
-                        className="h-9 px-3 rounded-xl text-xs gap-1"
-                        onClick={async () => {
-                          const currentFlags = property.flags || [
-                            ...(property.featured ? ["Featured"] : []),
-                            ...(property.best ? ["Premium"] : [])
-                          ]
-                          const newFlags = isChecked
-                            ? currentFlags.filter(f => f !== flag)
-                            : [...currentFlags, flag]
-                          
-                          setActionLoading((prev) => ({ ...prev, [property.id]: flag }))
-                          try {
-                            const isFeatured = newFlags.includes("Featured")
-                            const isPremium = newFlags.includes("Premium")
-                            await updatePropertyTags(property.id, { 
-                              featured: isFeatured,
-                              best: isPremium,
-                              flags: newFlags
-                            })
-                            toast({
-                              title: "Success",
-                              description: `Property tag "${flag}" updated`,
-                            })
-                            await fetchData()
-                          } catch (error) {
-                            console.error("Error updating tags:", error)
-                            toast({
-                              title: "Error",
-                              description: "Failed to update tags",
-                              variant: "destructive",
-                            })
-                          } finally {
-                            setActionLoading((prev) => {
-                              const newLoading = { ...prev }
-                              delete newLoading[property.id]
-                              return newLoading
-                            })
-                          }
-                        }}
-                        disabled={!!actionLoading[property.id]}
-                      >
-                        {flag === "Featured" && <Star className={cn("h-3.5 w-3.5", isChecked && "fill-current")} />}
-                        {flag}
-                      </Button>
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* Approval controls for Pending listings */}
-              {isPending && !showRejectionForm[property.id] && (
-                <div className="flex items-center gap-2">
                   <Button
                     size="sm"
                     onClick={() => handleApprove(property.id)}

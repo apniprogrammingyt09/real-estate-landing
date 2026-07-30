@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Loader2, Save, Check, Coins } from "lucide-react"
+import { Loader2, Save, Check, Coins, Edit } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function AdminCurrencyPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   // Currency State
   const [activeCurrency, setActiveCurrency] = useState({
@@ -54,6 +55,7 @@ export default function AdminCurrencyPage() {
       if (response.ok) {
         toast.success("Currency settings updated successfully")
         setSaved(true)
+        setIsEditing(false)
         setTimeout(() => setSaved(false), 3000)
       } else {
         toast.error("Failed to update currency settings")
@@ -85,9 +87,20 @@ export default function AdminCurrencyPage() {
 
       <Card className="rounded-[2rem] shadow-xl shadow-emerald-500/5 dark:shadow-none border border-gray-100 dark:border-gray-800">
         <CardHeader className="bg-gray-50/50 dark:bg-gray-900/50 border-b p-8 rounded-t-[2rem]">
-          <CardTitle className="text-xl font-serif flex items-center gap-3">
-            <Coins className="w-5 h-5 text-emerald-500" /> Currency Formatting
-          </CardTitle>
+          <div className="flex items-center justify-between w-full">
+            <CardTitle className="text-xl font-serif flex items-center gap-3">
+              <Coins className="w-5 h-5 text-emerald-500" /> Currency Formatting
+            </CardTitle>
+            <Button
+              variant={isEditing ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsEditing(!isEditing)}
+              className="rounded-xl gap-1 text-xs"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              {isEditing ? "Editing..." : "Edit Settings"}
+            </Button>
+          </div>
           <CardDescription>Configure currency labels and symbol positions.</CardDescription>
         </CardHeader>
         <CardContent className="p-8 space-y-8">
@@ -100,6 +113,7 @@ export default function AdminCurrencyPage() {
                 value={activeCurrency.code}
                 onChange={(e) => setActiveCurrency({ ...activeCurrency, code: e.target.value.toUpperCase() })}
                 placeholder="e.g. USD, EUR, GBP"
+                disabled={!isEditing}
                 className="rounded-xl bg-white dark:bg-gray-950"
               />
             </div>
@@ -111,6 +125,7 @@ export default function AdminCurrencyPage() {
                 value={activeCurrency.symbol}
                 onChange={(e) => setActiveCurrency({ ...activeCurrency, symbol: e.target.value })}
                 placeholder="e.g. $, €, £, ₹"
+                disabled={!isEditing}
                 className="rounded-xl bg-white dark:bg-gray-950"
               />
             </div>
@@ -120,14 +135,15 @@ export default function AdminCurrencyPage() {
               <RadioGroup 
                 value={activeCurrency.position} 
                 onValueChange={(val: any) => setActiveCurrency({ ...activeCurrency, position: val })}
+                disabled={!isEditing}
                 className="flex gap-6 pt-2"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="prefix" id="prefix" />
+                  <RadioGroupItem value="prefix" id="prefix" disabled={!isEditing} />
                   <Label htmlFor="prefix" className="font-semibold cursor-pointer">Prefix (e.g. $500k)</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="suffix" id="suffix" />
+                  <RadioGroupItem value="suffix" id="suffix" disabled={!isEditing} />
                   <Label htmlFor="suffix" className="font-semibold cursor-pointer">Suffix (e.g. 500k €)</Label>
                 </div>
               </RadioGroup>
@@ -143,25 +159,27 @@ export default function AdminCurrencyPage() {
             </span>
           </div>
 
-          <div className="flex justify-end pt-6 border-t dark:border-gray-800">
-            <Button 
-              onClick={saveCurrency}
-              disabled={saving}
-              className={cn(
-                "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
-                saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
-              )}
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : saved ? (
-                <Check className="w-4 h-4 mr-2" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              {saving ? "Saving..." : saved ? "Saved!" : "Save Currency Settings"}
-            </Button>
-          </div>
+          {isEditing && (
+            <div className="flex justify-end pt-6 border-t dark:border-gray-800 animate-in fade-in duration-200">
+              <Button 
+                onClick={saveCurrency}
+                disabled={saving}
+                className={cn(
+                  "rounded-full px-8 font-bold transition-all duration-300 shadow-md",
+                  saved ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5"
+                )}
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : saved ? (
+                  <Check className="w-4 h-4 mr-2" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                {saving ? "Saving..." : saved ? "Saved!" : "Save Currency Settings"}
+              </Button>
+            </div>
+          )}
 
         </CardContent>
       </Card>

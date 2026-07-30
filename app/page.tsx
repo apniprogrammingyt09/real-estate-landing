@@ -226,10 +226,26 @@ export default function HomePage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Any Price</SelectItem>
-                      <SelectItem value="0-200000">Under $200K</SelectItem>
-                      <SelectItem value="200000-500000">$200K - $500K</SelectItem>
-                      <SelectItem value="500000-1000000">$500K - $1M</SelectItem>
-                      <SelectItem value="1000000+">$1M+</SelectItem>
+                      <SelectItem value="0-200000">
+                        {settings?.activeCurrency?.position === "suffix"
+                          ? `Under 200K ${settings?.activeCurrency?.symbol || "$"}`
+                          : `Under ${settings?.activeCurrency?.symbol || "$"}200K`}
+                      </SelectItem>
+                      <SelectItem value="200000-500000">
+                        {settings?.activeCurrency?.position === "suffix"
+                          ? `200K - 500K ${settings?.activeCurrency?.symbol || "$"}`
+                          : `${settings?.activeCurrency?.symbol || "$"}200K - ${settings?.activeCurrency?.symbol || "$"}500K`}
+                      </SelectItem>
+                      <SelectItem value="500000-1000000">
+                        {settings?.activeCurrency?.position === "suffix"
+                          ? `500K - 1M ${settings?.activeCurrency?.symbol || "$"}`
+                          : `${settings?.activeCurrency?.symbol || "$"}500K - ${settings?.activeCurrency?.symbol || "$"}1M`}
+                      </SelectItem>
+                      <SelectItem value="1000000+">
+                        {settings?.activeCurrency?.position === "suffix"
+                          ? `1M+ ${settings?.activeCurrency?.symbol || "$"}`
+                          : `${settings?.activeCurrency?.symbol || "$"}1M+`}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -575,7 +591,7 @@ export default function HomePage() {
                   src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2070"
                   alt="Modern Masterpiece Villa"
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-[3000ms]"
+                  className="object-cover group-hover:scale-105 transition-transform [transition-duration:3000ms]"
                 />
                 
                 {/* Vignette styling overlay */}
@@ -731,49 +747,35 @@ export default function HomePage() {
 
                 {/* Content panel */}
                 <div className="space-y-10 lg:pl-10">
-                  <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-xl">
-                    <Tag className="w-8 h-8 text-gray-900 dark:text-white" />
-                  </div>
-
-                  <div className="relative min-h-[160px]">
-                    {testimonials.map((t, i) => (
-                      <div
-                        key={i}
-                        className="absolute inset-0 transition-all duration-700 ease-in-out"
-                        style={{
-                          opacity: testimonialIndex === i ? 1 : 0,
-                          transform: testimonialIndex === i ? "translateY(0)" : "translateY(16px)",
-                          pointerEvents: testimonialIndex === i ? "auto" : "none",
-                        }}
-                      >
-                        <blockquote className="text-2xl md:text-3xl font-serif leading-snug mb-8">
-                          &quot;{t.quote}&quot;
-                        </blockquote>
-                        <div>
-                          <div className="text-xl font-bold">{t.name}</div>
-                          <div className="text-gray-500 font-medium">{t.role}</div>
+                  <div className="relative">
+                    {testimonials.map((t, i) => {
+                      const isActive = testimonialIndex === i
+                      return (
+                        <div
+                          key={i}
+                          className={cn(
+                            "transition-all duration-700 ease-in-out",
+                            isActive 
+                              ? "opacity-100 translate-y-0 relative z-10 block" 
+                              : "opacity-0 translate-y-4 absolute inset-0 pointer-events-none"
+                          )}
+                        >
+                          <blockquote className="text-2xl md:text-3xl font-serif leading-snug mb-8">
+                            &quot;{t.quote}&quot;
+                          </blockquote>
+                          <div>
+                            <div className="text-xl font-bold">{t.name}</div>
+                            <div className="text-gray-500 font-medium">{t.role}</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   {/* Controls */}
                   <div className="flex items-center gap-6 pt-4">
-                    <button
-                      onClick={() => setTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-                      className="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center cursor-pointer hover:bg-gray-900 dark:hover:bg-white hover:border-gray-900 dark:hover:border-white hover:text-white dark:hover:text-gray-900 transition-all"
-                    >
-                      <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => setTestimonialIndex((prev) => (prev + 1) % testimonials.length)}
-                      className="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-800 flex items-center justify-center cursor-pointer hover:bg-gray-900 dark:hover:bg-white hover:border-gray-900 dark:hover:border-white hover:text-white dark:hover:text-gray-900 transition-all"
-                    >
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-
                     {/* Dot indicators */}
-                    <div className="flex items-center gap-2 ml-2">
+                    <div className="flex items-center gap-2">
                       {testimonials.map((_, i) => (
                         <button
                           key={i}
@@ -856,12 +858,12 @@ export default function HomePage() {
 
                   {/* Overlapping Gold Badge */}
                   {settings?.cta?.ratingText && (
-                    <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-900 border border-white/10 p-6 rounded-[2rem] shadow-2xl flex items-center gap-4 animate-bounce duration-[3s]">
+                    <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-900 border border-white/10 p-6 rounded-[2rem] shadow-2xl flex items-center gap-4 animate-bounce [animation-duration:3s]">
                       <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 dark:bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-white">
                         <Sparkles className="w-5 h-5 animate-pulse" />
                       </div>
                       <div>
-                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-sans">Premium Service</div>
+                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-sans">Database Performance</div>
                         <div className="text-sm font-bold text-gray-900 dark:text-white font-sans">{settings?.cta?.ratingText}</div>
                       </div>
                     </div>

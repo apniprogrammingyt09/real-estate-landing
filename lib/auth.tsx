@@ -44,9 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string, role: "admin" | "agent"): Promise<boolean> => {
     try {
-      const endpoint = role === "admin" ? "/api/admin/login" : "/api/agents/login"
-
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     setIsAuthenticated(false)
     localStorage.removeItem("auth_user")
+    fetch("/api/auth/logout", { method: "POST" }).catch(console.error)
   }
 
   return (
@@ -96,12 +95,10 @@ export function useAuth() {
   return context
 }
 
-// Helper function for admin check
 export const isAdmin = (user?: User | null) => {
   return user?.role === "admin"
 }
 
-// Helper function for agent check
 export const isAgent = (user?: User | null) => {
   return user?.role === "agent"
 }
